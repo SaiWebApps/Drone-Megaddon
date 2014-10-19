@@ -1,52 +1,63 @@
 package googlemaps.services;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 
+import android.app.Activity;
+import android.os.Handler;
 import android.util.Log;
 
-public class MapReceiverServer extends Thread
+public class MapReceiverServer
 {
-	private final int PORT_NUMBER = 8080;
+	private final int NUM_BYTES_PER_PERIOD = 4096;
+	private final int PERIOD = 100;
 	private final String LOG_TAG = "MapReceiverServer";
+	private final Handler serialCommunicationHandler = new Handler();
 
-	private MapService mapService;
-	private ServerSocket serverSocket;
+	private SerialCommunicationManager communicationManager;
 
-	public MapReceiverServer(MapService mapService)
+	public MapReceiverServer() {}
+
+	public void open(Activity activity)
 	{
-		try {
-			this.mapService = mapService;
-			this.serverSocket = new ServerSocket(PORT_NUMBER);
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "Unable to initialize ServerSocket at port " + PORT_NUMBER);
+		communicationManager = new SerialCommunicationManager(activity);
+
+		// If manager is unable to open USB-Serial connection, then nullify the
+		// communication manager so that it won't be used accidentally.
+		if (!communicationManager.open()) {
+			communicationManager = null;
+			return;
 		}
 	}
 
 	public void close()
 	{
-		try {
-			if (serverSocket != null) {
-				serverSocket.close();
-			}
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "Unable to close ServerSocket");
+		if (communicationManager != null) {
+			communicationManager.close();
 		}
 	}
 
-	@Override
-	public void run()
+	public void run(MapService mapService)
 	{
-		while (!Thread.currentThread().isInterrupted())
-		{
-			try {
-				final Socket connection = serverSocket.accept();
-				ReceiverThread receiver = new ReceiverThread(connection, mapService);
-				receiver.start();
-			} catch (IOException e) {
-				Log.e(LOG_TAG, e.getMessage());
-			}
+		// Exit immediately if communicationManager is null since this means that
+		// we weren't able to open a serial connection.
+		if (communicationManager == null) {
+			return;
 		}
+
+		serialCommunicationHandler.post(new Runnable() {
+
+			@Override
+			public void run()
+			{
+				try {
+					String line = communicationManager.readLine(NUM_BYTES_PER_PERIOD);
+					Log.e(LOG_TAG, line);
+				} catch (IOException e) {
+					Log.e(LOG_TAG, "Failed to read incoming information from serial port.");
+				}
+				serialCommunicationHandler.postDelayed(this, PERIOD);
+			}
+		});
+
 	}
 }

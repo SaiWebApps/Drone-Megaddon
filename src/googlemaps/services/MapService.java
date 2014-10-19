@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import googlemaps.intro.MapActivity;
 import googlemaps.intro.R;
+import android.app.Activity;
 import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
@@ -40,6 +41,11 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		registerHandlerForDroneInformation();
 	}
 
+	public Activity getActivity()
+	{
+		return mapActivity;
+	}
+	
 	private void initGoogleMap()
 	{
 		this.googleMap = ((MapFragment) mapActivity.getFragmentManager().

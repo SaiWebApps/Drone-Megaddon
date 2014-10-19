@@ -24,21 +24,26 @@ public class MapActivity extends Activity
 	public void onResume() 
 	{
 		super.onResume();
-		mapService = new MapService(this);
+		if (mapService == null) {
+			mapService = new MapService(this);
+		}
 		if (mapServer == null) {
-			mapServer = new MapReceiverServer(mapService);
-			mapServer.start();
+			mapServer = new MapReceiverServer();
+			mapServer.open(this);
+			mapServer.run(mapService);
 		}
 	}
 
 	@Override
-	public void onPause() 
+	public void onDestroy() 
 	{
-		mapService.releaseResources();
+		if (mapService != null) {
+			mapService.releaseResources();
+		}
 		if (mapServer != null) {
 			mapServer.close();
 			mapServer = null;
 		}
-		super.onPause();
+		super.onDestroy();
 	}
 }
