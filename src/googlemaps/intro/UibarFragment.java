@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.ListView;
 
 public class UibarFragment extends Fragment
@@ -49,6 +50,7 @@ public class UibarFragment extends Fragment
 		ListView actionListView = (ListView) v.findViewById(R.id.action_list);
 		
 		actionListView.setOnItemClickListener(new OnActionClickListener());
+		actionListView.setOnItemLongClickListener(new OnActionLongClickListener());
 		
 		List<Action> actionList = getActions();
 		ActionAdapter adapter = new ActionAdapter(v.getContext(), actionList);

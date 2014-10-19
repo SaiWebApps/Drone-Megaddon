@@ -1231,7 +1231,7 @@ containing a value of this type.
         public static final int action_mode_bar=0x7f050032;
         public static final int action_mode_bar_stub=0x7f050031;
         public static final int action_mode_close_button=0x7f050025;
-        public static final int action_settings=0x7f05004c;
+        public static final int action_settings=0x7f05004f;
         public static final int activity_chooser_view_content=0x7f050026;
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
@@ -1288,6 +1288,9 @@ containing a value of this type.
         public static final int terrain=0x7f050019;
         public static final int title=0x7f05002c;
         public static final int title_container=0x7f050033;
+        public static final int toast_layout_root=0x7f05004c;
+        public static final int toastimage=0x7f05004d;
+        public static final int toasttext=0x7f05004e;
         public static final int top_action_bar=0x7f050021;
         public static final int uibar_fragment=0x7f050047;
         public static final int up=0x7f050022;
@@ -1349,6 +1352,7 @@ containing a value of this type.
         public static final int activity_map=0x7f030019;
         public static final int fragment_uibar=0x7f03001a;
         public static final int support_simple_spinner_dropdown_item=0x7f03001b;
+        public static final int toast_hint=0x7f03001c;
     }
     public static final class menu {
         public static final int map=0x7f0c0000;

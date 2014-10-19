@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 
 public class OnActionClickListener implements OnItemClickListener 
 {
-	int[] mActionsOff = new int[] {
+	public int[] mActionsOff = new int[] {
 			R.drawable.sc2land_or,
 			R.drawable.sc2xor,
 			R.drawable.sc2firering,
@@ -21,7 +21,7 @@ public class OnActionClickListener implements OnItemClickListener
 			R.drawable.sc2crosshairs,
 	};
 	
-	int[] mActionsOn = new int[] {
+	public int[] mActionsOn = new int[] {
 			R.drawable.sc2rain,
 			R.drawable.sc2xor_or,
 			R.drawable.sc2fire,
