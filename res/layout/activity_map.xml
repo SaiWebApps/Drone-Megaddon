@@ -10,7 +10,7 @@
     <fragment
         android:id="@+id/uibar_fragment"
         android:name="googlemaps.intro.UibarFragment"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_uibar" />
 

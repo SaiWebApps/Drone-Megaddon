@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 public class UibarFragment extends Fragment
@@ -26,13 +28,13 @@ public class UibarFragment extends Fragment
 	{
 		List<Action> actionList = new ArrayList<Action>();
 		
-		actionList.add(new Action(R.drawable.sc2arrow, ""));
-		actionList.add(new Action(R.drawable.sc2bunker, ""));
-		actionList.add(new Action(R.drawable.sc2cross, ""));
-		actionList.add(new Action(R.drawable.sc2drill, ""));
-		actionList.add(new Action(R.drawable.sc2target, ""));
-		actionList.add(new Action(R.drawable.sc2wrenchs, ""));
-		actionList.add(new Action(R.drawable.sc2xor, ""));
+		actionList.add(new Action(R.drawable.sc2land_or, "takeoff_land"));
+		actionList.add(new Action(R.drawable.sc2xor, "emergency_shutdown"));
+		actionList.add(new Action(R.drawable.sc2firering, "hover"));
+		actionList.add(new Action(R.drawable.sc2twistleftlit, "spinleft"));
+		actionList.add(new Action(R.drawable.sc2twistrightlit, "spinright"));
+		actionList.add(new Action(R.drawable.sc2rain, "flyup"));
+		actionList.add(new Action(R.drawable.sc2missles, "flydown"));
 		
 		return actionList;
 	}
@@ -41,9 +43,12 @@ public class UibarFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
+		
 		// Creating view corresponding to the fragment
 		View v = inflater.inflate(R.layout.fragment_uibar, container, false);
 		ListView actionListView = (ListView) v.findViewById(R.id.action_list);
+		
+		actionListView.setOnItemClickListener(new OnActionClickListener());
 		
 		List<Action> actionList = getActions();
 		ActionAdapter adapter = new ActionAdapter(v.getContext(), actionList);
