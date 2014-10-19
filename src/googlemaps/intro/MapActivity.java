@@ -1,5 +1,7 @@
 package googlemaps.intro;
 
+import com.google.android.gms.maps.MapsInitializer;
+
 import googlemaps.services.MapReceiverServer;
 import googlemaps.services.MapService;
 import android.app.Activity;
@@ -15,6 +17,7 @@ public class MapActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
+		MapsInitializer.initialize(getApplicationContext());
 	}
 
 	@Override
