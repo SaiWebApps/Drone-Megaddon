@@ -13,7 +13,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
-public class SerialCommunicationManager 
+public class UsbSerialManager 
 {
 	private final String LOG_TAG = getClass().getName();
 	private final int BAUD_RATE = 115200;
@@ -21,7 +21,7 @@ public class SerialCommunicationManager
 	private UsbManager usbManager;
 	private UsbSerialPort serialPort;
 
-	public SerialCommunicationManager(Activity activity)
+	public UsbSerialManager(Activity activity)
 	{
 		this.usbManager = (UsbManager) activity.getSystemService(Context.USB_SERVICE); 
 	}

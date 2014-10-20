@@ -2,7 +2,7 @@ package googlemaps.intro;
 
 import com.google.android.gms.maps.MapsInitializer;
 
-import googlemaps.services.MapReceiverServer;
+import googlemaps.services.CommunicationServer;
 import googlemaps.services.MapService;
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,7 +10,7 @@ import android.os.Bundle;
 public class MapActivity extends Activity 
 {
 	private MapService mapService;
-	private MapReceiverServer mapServer;
+	private CommunicationServer mapServer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
@@ -28,7 +28,7 @@ public class MapActivity extends Activity
 			mapService = new MapService(this);
 		}
 		if (mapServer == null) {
-			mapServer = new MapReceiverServer();
+			mapServer = new CommunicationServer();
 			mapServer.open(this);
 			mapServer.run(mapService);
 		}
