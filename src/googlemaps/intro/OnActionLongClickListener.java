@@ -23,7 +23,7 @@ public class OnActionLongClickListener implements OnItemLongClickListener {
 			R.drawable.sc2twistleftlit,
 			R.drawable.sc2twistrightlit,
 			R.drawable.sc2rain,
-			R.drawable.sc2missles,
+			R.drawable.sc2missiles,
 			R.drawable.sc2crosshairs,
 	};
 	

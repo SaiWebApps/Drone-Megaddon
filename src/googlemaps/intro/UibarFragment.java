@@ -35,7 +35,7 @@ public class UibarFragment extends Fragment
 		actionList.add(new Action(R.drawable.sc2twistleftlit, "spinleft"));
 		actionList.add(new Action(R.drawable.sc2twistrightlit, "spinright"));
 		actionList.add(new Action(R.drawable.sc2rain, "flyup"));
-		actionList.add(new Action(R.drawable.sc2missles, "flydown"));
+		actionList.add(new Action(R.drawable.sc2missiles, "flydown"));
 		
 		return actionList;
 	}

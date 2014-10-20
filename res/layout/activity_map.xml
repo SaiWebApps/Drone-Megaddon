@@ -8,10 +8,19 @@
     tools:ignore="MergeRootFrame" >
 
     <fragment
+        android:id="@+id/progbar_fragment"
+        android:name="googlemaps.intro.ProgbarFragment"
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_alignParentTop="true"
+        tools:layout="@layout/fragment_progbar" />
+
+    <fragment
         android:id="@+id/uibar_fragment"
         android:name="googlemaps.intro.UibarFragment"
         android:layout_width="80dp"
         android:layout_height="match_parent"
+        android:layout_below="@id/progbar_fragment"
         tools:layout="@layout/fragment_uibar" />
 
     <fragment
@@ -19,6 +28,7 @@
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_below="@id/progbar_fragment"
         android:layout_toRightOf="@id/uibar_fragment" />
 
 </RelativeLayout>
