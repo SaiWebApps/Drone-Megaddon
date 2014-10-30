@@ -30,6 +30,9 @@ public class GPSParser {
 		char NorS;
 		char EorW;
 		
+		if (!validNMEAChecksum(line))
+			return null;
+		
 		List<String> lineList = Arrays.asList(line.split(","));
 		if (!lineList.get(0).equals("$GPGGA") || lineList.size() != 15) {
 			System.out.print("lineList size is: "); 
@@ -69,10 +72,22 @@ public class GPSParser {
 	}
 	
 	private boolean validNMEAChecksum (String packet) {
-		final int startChars = 1;
-		final int endChars = 5;
-		long computedChecksum = 0;
-		return true;
+		final int start = 1;
+		final int end = packet.indexOf('*');
+		int computedChecksum = 0;
+		int readChecksum = 0;
+		
+		for (index = start; index < end; ++index) {
+			computedChecksum ^= packet.charAt(index);
+		}
+//		System.out.print("computedChecksum is: ");
+//		System.out.println(computedChecksum);
+	
+		// Checksum located right after '*' character (index is stored in end)
+		readChecksum = Integer.parseInt(packet.substring(end + 1, packet.length()), 16);
+//		System.out.print("readChecksum is: ");
+//		System.out.println(readChecksum);
+		return computedChecksum == readChecksum;
 	}
 	
 	public int getIndex() {
