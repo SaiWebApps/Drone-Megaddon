@@ -1,6 +1,7 @@
 package googlemaps.services;
 
 import googlemaps.intro.MapActivity;
+import googlemaps.services.GPSParser.Coordinates;
 
 import com.physicaloid.lib.Physicaloid;
 import com.physicaloid.lib.usb.driver.uart.UartConfig;
@@ -37,7 +38,7 @@ public class CommunicationServer
 	public void openUSBSerial()
 	{
 		String toastMessage = "Already connected to device";
-		
+
 		// Open a connection if one hasn't already been opened.
 		// If we successfully open the connection, then release a Thread to
 		// read incoming messages.
@@ -67,10 +68,10 @@ public class CommunicationServer
 	private class SerialCommunicationReader implements Runnable
 	{
 		private final int BUFFER_SIZE = 4096;
-		
+
 		private Handler readerHandler = new Handler();
 		private StringBuilder mText = new StringBuilder();
-		
+
 		@Override
 		public void run()
 		{
@@ -84,15 +85,23 @@ public class CommunicationServer
 					continue;
 				}
 
+				// Transfer bytes to text buffer, so that we
+				// can process the message as a String.
 				for (int i = 0; i < numBytesRead;  i++) {
 					mText.append((char) rbuf[i]);
 				}
 				readerHandler.post(new Runnable() {
 					public void run() {
-						mapActivity.setTitle(mText);
+						String received = mText.toString();						
+						mapActivity.notifyMapService(received);
 						mText.setLength(0);
 					}
-				});	
+				});
+				try {
+					Thread.currentThread().sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

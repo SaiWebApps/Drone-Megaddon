@@ -6,8 +6,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import googlemaps.intro.MapActivity;
 import googlemaps.intro.R;
+import googlemaps.services.GPSParser.Coordinates;
 import android.os.Handler;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -61,14 +61,24 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 			public void run() {
 				if (!incomingInfo.isEmpty()) {
 					String info = incomingInfo.pop();
-					String[] tokens = info.split(",");
-					try {
-						int id = Integer.parseInt(tokens[0]);
-						double coord1 = Double.parseDouble(tokens[1]);
-						double coord2 = Double.parseDouble(tokens[2]);
-						addDrone(id, new LatLng(coord1, coord2));
-					} catch (NumberFormatException e) {
-						Log.e("Message Processing Error", "Did not receive valid numeric values.");
+					GPSParser parser = new GPSParser();
+					Coordinates coord = parser.gpsParseLine(info);
+
+					if(coord != null) {
+						String latitudeStr = String.format("%.3f", coord.latitude);
+						String longitudeStr = String.format("%.3f", coord.longitude);
+						float latitude = Float.parseFloat(latitudeStr);
+						float longitude = Float.parseFloat(longitudeStr);
+						LatLng dest = new LatLng(latitude, longitude);
+						
+						if (droneMap.get(1) == null) {
+							addDrone(1, dest);
+						}
+						else {
+							Marker destMarker = googleMap.addMarker(new MarkerOptions().position(dest));
+							destMarker.setVisible(false);
+							droneMap.get(1).moveToDestMarker(destMarker);
+						}
 					}
 				}
 				receivedMessageHandler.postDelayed(this, 50);

@@ -32,7 +32,12 @@ public class MapActivity extends Activity
 				message, Toast.LENGTH_SHORT);
 		t.show();
 	}
-
+	
+	public void notifyMapService(String receivedInformation)
+	{
+		mapService.saveReceivedInfo(receivedInformation);
+	}
+	
 	@Override
 	public void onDestroy() 
 	{

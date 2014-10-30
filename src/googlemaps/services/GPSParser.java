@@ -30,12 +30,12 @@ public class GPSParser {
 		char NorS;
 		char EorW;
 
-		if (!validNMEAChecksum(line))
-			return null;
-
 		List<String> lineList = Arrays.asList(line.split(","));
 		if (!lineList.get(0).equals("$GPGGA") || lineList.size() != 15)
 			return null;
+
+		/*if (!validNMEAChecksum(line))
+			return null;*/
 
 		Coordinates coord = new Coordinates();
 		coord.UTC = Double.parseDouble(lineList.get(1));
@@ -56,11 +56,12 @@ public class GPSParser {
 			coord.longitude *= -1;
 
 		return coord;
+//		return null;
 	}
 
 	private double nmeaToDecimal (double coordinate) {
 		double end = coordinate % 100.0; 
-		return (coordinate - end / 100.0) + (end / 60.0);
+		return ((coordinate - end / 100.0) + (end / 60.0)) / 100.0;
 	}
 
 	private boolean validNMEAChecksum (String packet) {
