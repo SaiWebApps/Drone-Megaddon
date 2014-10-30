@@ -2,43 +2,42 @@ package googlemaps.intro;
 
 import com.google.android.gms.maps.MapsInitializer;
 
-import googlemaps.services.MapReceiverServer;
+import googlemaps.services.CommunicationServer;
 import googlemaps.services.MapService;
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class MapActivity extends Activity 
 {
 	private MapService mapService;
-	private MapReceiverServer mapServer;
-
+	private CommunicationServer serialCommService;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
+		
 		MapsInitializer.initialize(getApplicationContext());
-	}
-
-	@Override
-	public void onResume() 
-	{
-		super.onResume();
 		mapService = new MapService(this);
-		if (mapServer == null) {
-			mapServer = new MapReceiverServer(mapService);
-			mapServer.start();
-		}
+		
+		serialCommService = new CommunicationServer(this);
+		serialCommService.openUSBSerial();
+	}
+
+	public void showToast(String message)
+	{
+		Toast t = Toast.makeText(getApplicationContext(), 
+				message, Toast.LENGTH_SHORT);
+		t.show();
 	}
 
 	@Override
-	public void onPause() 
+	public void onDestroy() 
 	{
+		serialCommService.closeUSBSerial();
 		mapService.releaseResources();
-		if (mapServer != null) {
-			mapServer.close();
-			mapServer = null;
-		}
-		super.onPause();
+		super.onDestroy();
 	}
 }
