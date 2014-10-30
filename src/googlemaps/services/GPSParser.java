@@ -34,20 +34,12 @@ public class GPSParser {
 			return null;
 		
 		List<String> lineList = Arrays.asList(line.split(","));
-		if (!lineList.get(0).equals("$GPGGA") || lineList.size() != 15) {
-			System.out.print("lineList size is: "); 
-			System.out.println(lineList.size());
-//			for (int i = 0; i < lineList.size(); ++i) {
-//				System.out.print(lineList.get(i) + " ");
-//			}
+		if (!lineList.get(0).equals("$GPGGA") || lineList.size() != 15)
 			return null;
-		}
 		
 		Coordinates coord = new Coordinates();
 		coord.UTC = Double.parseDouble(lineList.get(1));
-		System.out.println(coord.UTC);
 		coord.latitude = nmeaToDecimal(Double.parseDouble(lineList.get(2)));
-
 		NorS = lineList.get(3).charAt(0);
 		coord.longitude = nmeaToDecimal(Double.parseDouble(lineList.get(4)));
 		EorW = lineList.get(5).charAt(0);
@@ -77,16 +69,10 @@ public class GPSParser {
 		int computedChecksum = 0;
 		int readChecksum = 0;
 		
-		for (index = start; index < end; ++index) {
+		for (index = start; index < end; ++index)
 			computedChecksum ^= packet.charAt(index);
-		}
-//		System.out.print("computedChecksum is: ");
-//		System.out.println(computedChecksum);
-	
-		// Checksum located right after '*' character (index is stored in end)
 		readChecksum = Integer.parseInt(packet.substring(end + 1, packet.length()), 16);
-//		System.out.print("readChecksum is: ");
-//		System.out.println(readChecksum);
+		
 		return computedChecksum == readChecksum;
 	}
 	
