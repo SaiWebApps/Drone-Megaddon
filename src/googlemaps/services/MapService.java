@@ -159,6 +159,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		List<Drone> selectedDrones = getSelectedDrones();
 		// Do nothing if no drones were selected.
 		if (selectedDrones.isEmpty()) {
+			addDrone(42, clickedLocation); // DHT: ZERG TEST DRONE
 			return;
 		}
 		// If at least 1 drone was selected, place a marker at the destination,
