@@ -10,6 +10,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MoveDrone implements Runnable
 {
@@ -29,6 +30,7 @@ public class MoveDrone implements Runnable
 	{
 		this.movementHandler = handler;
 		this.sourceMarker = source;
+		sourceMarker.setRotation(computeAngle(source, dest));
 		this.destinationMarker = dest;
 		initialize(map);
 	}
@@ -41,6 +43,25 @@ public class MoveDrone implements Runnable
 		Point endPoint = proj.toScreenLocation(destinationMarker.getPosition());
 		this.startLatLng = proj.fromScreenLocation(startPoint);
 		this.destLatLng = proj.fromScreenLocation(endPoint);
+	}
+	
+	private float computeAngle(Marker source, Marker dest) {
+		double x1 = source.getPosition().latitude;
+		double y1 = source.getPosition().longitude;
+		double x2 = dest.getPosition().latitude;
+		double y2 = dest.getPosition().longitude;
+		double xdiff = x2 - x1;
+		double ydiff = y2 - y1;
+		double angle = Math.atan(Math.abs(ydiff)/Math.abs(xdiff));
+		
+		if (ydiff < 0 && xdiff < 0) {
+			angle = 270 - angle;            // Quad 3
+		} else if (ydiff > 0 && xdiff < 0) {
+			angle += 270;                   // Quad 2
+		} else if (ydiff < 0 && xdiff > 0) {
+			angle += 90;                    // Quad 4
+		} 
+		return (float) angle;
 	}
 	
 	@Override
