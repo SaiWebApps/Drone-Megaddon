@@ -26,9 +26,11 @@ public class CommunicationServer
 
 	// Slipstream byte definitions
 	private final int MAX_SLIP_BUF = 1024;
-	private final byte ESC = (byte) 219;
-	private final byte START = (byte) 193;
-	private final byte END = (byte) 192;
+	private final byte ESC = (byte) 0xDB;
+	private final byte START = (byte) 0xC1;
+	private final byte END = (byte) 0xC0;
+	private final byte ESC_END = (byte) 0xDC;
+	private final byte ESC_ESC = (byte) 0xDD;
 
 
 	// Activity using this CommunicationServer
@@ -74,6 +76,55 @@ public class CommunicationServer
 		if (!serialManager.close()) {
 			mapActivity.showToast("Unable to close serial connection.");
 		}
+	}
+	private int slipTxAck(byte[] newbuf, byte size) {
+		int seqNum = (newbuf[1] << 8) + newbuf[1];
+		byte checksum = 0;
+		byte[] sendByte = new byte[1];
+
+		if (size > 128) {
+			return 0;
+		}
+		sendByte[0] = END; 
+		while (serialManager.write(sendByte, 1) < 0);
+		sendByte[0] = END; 
+		while (serialManager.write(sendByte, 1) < 0);
+		sendByte[0] = START; 
+		while (serialManager.write(sendByte, 1) < 0);
+		sendByte[0] = size; 
+		while (serialManager.write(sendByte, 1) < 0);
+		
+		// Send data in newbuf
+		for (int i = 0; i < size; ++i) {
+			switch (newbuf[i]) {
+			case END:
+				sendByte[0] = ESC; 
+				while (serialManager.write(sendByte, 1) < 0);
+				checksum += END;
+				sendByte[0] = ESC_END;
+				while (serialManager.write(sendByte, 1) < 0);
+				break;
+			case ESC:
+				sendByte[0] = ESC;
+				while (serialManager.write(sendByte, 1) < 0);
+				checksum += ESC;
+				sendByte[0] = ESC_END;
+				while (serialManager.write(sendByte, 1) < 0);
+				break;
+			default:
+				sendByte[0] = newbuf[i];
+				while (serialManager.write(sendByte, 1) < 0);
+				checksum += sendByte[0];
+			}
+		}
+		// Send checksum and END
+		checksum &= 0x7F; // checksum < 128, prevent from becoming ctrl msg
+		sendByte[0] = checksum;
+		while (serialManager.write(sendByte, 1) < 0);
+		sendByte[0] = END;
+		while (serialManager.write(sendByte, 1) < 0);
+		
+		return 0;
 	}
 
 	private class SerialCommunicationReader implements Runnable
@@ -147,11 +198,11 @@ public class CommunicationServer
 			int res = 0;
 			byte[] sbyte = new byte[1]; // new slip byte
 			byte[] slipBuf = new byte[MAX_SLIP_BUF];
-			
+
 			if (slipRdytoRead != false) {
 				return;
 			}
-			
+
 			while(true) {
 				numBytesRead = serialManager.read(sbyte, 1);
 				if (numBytesRead > 0) {
@@ -176,10 +227,10 @@ public class CommunicationServer
 						} while (res < 0); // assuming read returns -1 on error?
 
 						switch (sbyte[0]) {
-						case END:
+						case ESC_END:
 							sbyte[0] = END;
 							break;
-						case ESC:
+						case ESC_ESC:
 							sbyte[0] = ESC;
 							break;
 						}
