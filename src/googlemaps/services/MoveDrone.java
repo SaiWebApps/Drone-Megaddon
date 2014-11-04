@@ -60,7 +60,9 @@ public class MoveDrone implements Runnable
 			angle += 270;                   // Quad 2
 		} else if (ydiff < 0 && xdiff > 0) {
 			angle += 90;                    // Quad 4
-		} 
+		} else {
+			angle = 90 - angle;             // Quad 1
+		}
 		return (float) angle;
 	}
 	
