@@ -20,6 +20,17 @@ public class CommunicationServer
 	private final UartConfig serialConfig = new UartConfig(BAUD_RATE,
 			DATA_BITS, STOP_BITS, PARITY, DTR_ON, RTS_ON);
 
+	// Mode definitions
+	private final int ASCII = 1;
+	private final int SLIP = 0;
+
+	// Slipstream byte definitions
+	private final int MAX_SLIP_BUF = 1024;
+	private final byte ESC = (byte) 219;
+	private final byte START = (byte) 193;
+	private final byte END = (byte) 192;
+
+
 	// Activity using this CommunicationServer
 	private MapActivity mapActivity;
 	// Object used to create and manage USB serial communication
@@ -71,37 +82,114 @@ public class CommunicationServer
 
 		private Handler readerHandler = new Handler();
 		private StringBuilder mText = new StringBuilder();
+		private boolean slipRdytoRead = false;
 
 		@Override
 		public void run()
 		{
 			int numBytesRead;
+			int serialIdx = 0;
 			byte[] rbuf = new byte[BUFFER_SIZE];
+			byte[] cbyte = new byte[1]; // new char byte
 
-			while(true) {
-				numBytesRead = serialManager.read(rbuf);
-				rbuf[numBytesRead] = 0;
-				if (numBytesRead == 0) {
-					continue;
+			while (true) {
+				numBytesRead = serialManager.read(cbyte, 1);
+				if (numBytesRead <= 0) {
+					return;
 				}
 
-				// Transfer bytes to text buffer, so that we
-				// can process the message as a String.
-				for (int i = 0; i < numBytesRead;  i++) {
-					mText.append((char) rbuf[i]);
+				if (cbyte[0] == START) {
+					slipRx();							
 				}
-				readerHandler.post(new Runnable() {
-					public void run() {
-						String received = mText.toString();						
-						mapActivity.notifyMapService(received);
-						mText.setLength(0);
+
+				rbuf[serialIdx++] = cbyte[0];
+				if (cbyte[0] == '\n') {
+					rbuf[serialIdx++] = '\0';
+					serialIdx = 0;
+					// Transfer bytes to text buffer, so that we
+					// can process the message as a String.
+					for (int i = 0; i < numBytesRead;  i++) {
+						mText.append((char) rbuf[i]);
 					}
-				});
+					readerHandler.post(new Runnable() {
+						public void run() {
+							String received = mText.toString();						
+							mapActivity.notifyMapService(received);
+							mText.setLength(0);
+						}
+					});
+				}
+				//				rbuf[numBytesRead] = 0;
+				//				if (numBytesRead == 0) {
+				//					continue;
+				//				}
 				try {
 					Thread.currentThread().sleep(100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
+		}
+
+		private boolean slipChecksum(byte[] slipBuf, int received) {
+			byte checksum = 0;
+			for (int i = 1; i < received - 1; ++i) {
+				checksum += slipBuf[i];
+			}
+			checksum &= 0x7F;
+			return checksum == slipBuf[received - 1];
+		}
+
+		private void slipRx() {
+			int mode = SLIP;
+			int numBytesRead;
+			int received = 0;
+			int res = 0;
+			byte[] sbyte = new byte[1]; // new slip byte
+			byte[] slipBuf = new byte[MAX_SLIP_BUF];
+			
+			if (slipRdytoRead != false) {
+				return;
+			}
+			
+			while(true) {
+				numBytesRead = serialManager.read(sbyte, 1);
+				if (numBytesRead > 0) {
+					switch (sbyte[0]) {
+					case END: 
+						if (received != 0) {
+							byte size;
+							size = slipBuf[0];
+							if ((received - 2) != size) {
+								break;
+							}
+							if (!slipChecksum(slipBuf, received)) {
+								break;
+							}
+							// valid buffer received; now process it!
+							//							server_tx
+						}
+						break;
+					case ESC:
+						do {
+							res = serialManager.read(sbyte, 1);
+						} while (res < 0); // assuming read returns -1 on error?
+
+						switch (sbyte[0]) {
+						case END:
+							sbyte[0] = END;
+							break;
+						case ESC:
+							sbyte[0] = ESC;
+							break;
+						}
+					default: 
+						if (received < MAX_SLIP_BUF) {
+							slipBuf[received++] = sbyte[0];
+						}
+					}
+				}
+				slipRdytoRead = true;
 			}
 		}
 	}

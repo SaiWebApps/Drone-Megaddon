@@ -18,7 +18,7 @@
     <fragment
         android:id="@+id/uibar_fragment"
         android:name="googlemaps.intro.UibarFragment"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="match_parent"
         android:layout_below="@id/progbar_fragment"
         tools:layout="@layout/fragment_uibar" />

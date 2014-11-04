@@ -1,6 +1,9 @@
 package googlemaps.services;
 
 import googlemaps.intro.R;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.Handler;
 
 import com.google.android.gms.maps.*;

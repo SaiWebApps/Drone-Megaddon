@@ -3,12 +3,12 @@
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingLeft="40dp"
-    android:paddingRight="40dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
     android:background="#010101" >
 
     <ImageView android:id="@+id/toastimage"
-        android:layout_width="80dp"
+        android:layout_width="50dp"
         android:layout_height="fill_parent"
         android:layout_marginRight="15dp" />
 
@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:gravity="center"
-        android:textSize="20sp"
+        android:textSize="15sp"
         android:textColor="#A2FFC2" />
 
 </LinearLayout>
