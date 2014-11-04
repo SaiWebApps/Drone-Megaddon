@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 public class ProgbarFragment extends Fragment {
+	private static final int MAX_ALTITUDE = 10000;
 	private static final int PROGRESS = 0x1;
 
 	private ProgressBar mProgressRight, mProgressLeft;
@@ -53,6 +54,10 @@ public class ProgbarFragment extends Fragment {
 		//            }
 		//        }).start();
 		return v;
+	}
+	
+	public void setAltProgress(double altitude) {
+		this.mProgressRight.setProgress((int) ((altitude / MAX_ALTITUDE) * 100));
 	}
 
 	public static void setColorOfProgressBar(ProgressBar mProgressBar, int mColor){

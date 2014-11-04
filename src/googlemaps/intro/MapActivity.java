@@ -45,4 +45,12 @@ public class MapActivity extends Activity
 		mapService.releaseResources();
 		super.onDestroy();
 	}
+	
+	// Progress Bar fragment update 
+	public void onAltitudeChange(double altitude) {
+		ProgbarFragment progFrag = (ProgbarFragment)
+                getFragmentManager().findFragmentById(R.id.progbar_fragment);
+		progFrag.setAltProgress(altitude);
+		
+	}
 }

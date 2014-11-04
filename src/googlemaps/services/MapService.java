@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import googlemaps.intro.MapActivity;
+import googlemaps.intro.ProgbarFragment;
 import googlemaps.intro.R;
 import googlemaps.services.GPSParser.Coordinates;
+import android.app.FragmentManager;
 import android.os.Handler;
 import android.util.SparseArray;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -30,6 +33,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	private Marker destinationMarker;
 
 	private MapActivity mapActivity;
+	OnAltitudeChangeListener mCallback;
 
 	public MapService(MapActivity mapActivity) 
 	{
@@ -39,6 +43,11 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		initGoogleMap();		
 		registerHandlerForDroneInformation();
 	}
+	
+	// Container MapActivity must implement this interface
+    public interface OnAltitudeChangeListener {
+        public void onAltitudeChange(double altitudeGps);
+    }
 
 	private void initGoogleMap()
 	{
@@ -65,6 +74,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 					Coordinates coord = parser.gpsParseLine(info);
 
 					if(coord != null) {
+						// Update drone coordinates
 						String latitudeStr = String.format("%.3f", coord.latitude);
 						String longitudeStr = String.format("%.3f", coord.longitude);
 						float latitude = Float.parseFloat(latitudeStr);
@@ -79,6 +89,9 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 							destMarker.setVisible(false);
 							droneMap.get(1).moveToDestMarker(destMarker);
 						}
+						
+						// Display altitude information in bar
+						mCallback.onAltitudeChange(coord.altitudeGps);
 					}
 				}
 				receivedMessageHandler.postDelayed(this, 50);
