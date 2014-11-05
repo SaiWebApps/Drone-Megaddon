@@ -3,8 +3,10 @@ package googlemaps.services;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -30,7 +32,9 @@ public class MoveDrone implements Runnable
 	{
 		this.movementHandler = handler;
 		this.sourceMarker = source;
+//		sourceMarker.setRotation(0);
 		sourceMarker.setRotation(computeAngle(source, dest));
+//		sourceMarker.setRotation(45.5f);
 		this.destinationMarker = dest;
 		initialize(map);
 	}
@@ -46,23 +50,33 @@ public class MoveDrone implements Runnable
 	}
 	
 	private float computeAngle(Marker source, Marker dest) {
-		double x1 = source.getPosition().latitude;
-		double y1 = source.getPosition().longitude;
-		double x2 = dest.getPosition().latitude;
-		double y2 = dest.getPosition().longitude;
+		double x1 = source.getPosition().longitude;
+		double y1 = source.getPosition().latitude;
+		double x2 = dest.getPosition().longitude;
+		double y2 = dest.getPosition().latitude;
 		double xdiff = x2 - x1;
 		double ydiff = y2 - y1;
-		double angle = Math.atan(Math.abs(ydiff)/Math.abs(xdiff));
+		double angle = Math.toDegrees(Math.atan(Math.abs(ydiff)/Math.abs(xdiff)));
 		
 		if (ydiff < 0 && xdiff < 0) {
+			Log.e("Q", "uad3");
 			angle = 270 - angle;            // Quad 3
 		} else if (ydiff > 0 && xdiff < 0) {
+			Log.e("Q", "uad2");
+			Log.e("OrigAng", "" + angle);
 			angle += 270;                   // Quad 2
 		} else if (ydiff < 0 && xdiff > 0) {
+			Log.e("Q", "uad4");
 			angle += 90;                    // Quad 4
 		} else {
+			Log.e("Q", "uad1");
 			angle = 90 - angle;             // Quad 1
 		}
+
+		Log.e("Src", "(" + x1 + "," + y1 + ")" );
+		Log.e("Dest", "(" + x2 + "," + y2 + ")" );
+		Log.e("xyDiff", "(" + xdiff + "," + ydiff + ")" );
+		Log.e("Ang", "" + angle);
 		return (float) angle;
 	}
 	
@@ -84,6 +98,7 @@ public class MoveDrone implements Runnable
         else {
         	// Remove destinationMarkerOptions marker from map once source marker reaches/passes it.
         	destinationMarker.remove();
+    		sourceMarker.setRotation(0);
         }
 	}
 }

@@ -35,7 +35,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	private MapActivity mapActivity;
 	OnAltitudeChangeListener mCallback;
 
-	public MapService(MapActivity mapActivity) 
+	public MapService(MapActivity mapActivity)
 	{
 		this.mapActivity = mapActivity;
 		this.destinationMarkerOptions.icon(BitmapDescriptorFactory.
@@ -176,6 +176,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		List<Drone> selectedDrones = getSelectedDrones();
 		// Do nothing if no drones were selected.
 		if (selectedDrones.isEmpty()) {
+			addDrone(42, clickedLocation);
 			return;
 		}
 		// If at least 1 drone was selected, place a marker at the destination,

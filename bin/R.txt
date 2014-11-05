@@ -327,6 +327,7 @@ int drawable sc2xlit 0x7f02009c
 int drawable sc2xor 0x7f02009d
 int drawable sc2xor_or 0x7f02009e
 int drawable selected_drone 0x7f02009f
+int drawable up_drone 0x7f0200a0
 int id action_bar 0x7f07001d
 int id action_bar_activity_content 0x7f070018
 int id action_bar_container 0x7f07001c

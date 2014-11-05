@@ -1217,6 +1217,7 @@ containing a value of this type.
         public static final int sc2xor=0x7f02009d;
         public static final int sc2xor_or=0x7f02009e;
         public static final int selected_drone=0x7f02009f;
+        public static final int up_drone=0x7f0200a0;
     }
     public static final class id {
         public static final int action_bar=0x7f07001d;
