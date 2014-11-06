@@ -1,7 +1,6 @@
 package googlemaps.services;
 
 import googlemaps.intro.MapActivity;
-import googlemaps.services.GPSParser.Coordinates;
 
 import com.physicaloid.lib.Physicaloid;
 import com.physicaloid.lib.usb.driver.uart.UartConfig;
@@ -67,40 +66,52 @@ public class CommunicationServer
 
 	private class SerialCommunicationReader implements Runnable
 	{
-		private final int BUFFER_SIZE = 4096;
-
 		private Handler readerHandler = new Handler();
 		private StringBuilder mText = new StringBuilder();
 
+		/**
+		 * Invoked at the end of the current GPS message.
+		 * At this point, add the most recent GPS message to the MapService's
+		 * message queue, so that the drone's current location can be updated.
+		 * Clear the text buffer afterwards, so that we can start processing the
+		 * next message.
+		 */
+		private void handleEndOfMessage()
+		{
+			readerHandler.post(new Runnable() {
+				public void run() {
+					String received = mText.toString();						
+					mapActivity.notifyMapService(received);
+					mText.setLength(0);
+				}
+			});
+		}
+		
 		@Override
 		public void run()
 		{
 			int numBytesRead;
-			byte[] rbuf = new byte[BUFFER_SIZE];
+			byte[] rbuf = new byte[2];
+			char incomingChar;
 
 			while(true) {
-				numBytesRead = serialManager.read(rbuf);
+				numBytesRead = serialManager.read(rbuf, 1);
 				rbuf[numBytesRead] = 0;
 				if (numBytesRead == 0) {
 					continue;
 				}
 
-				// Transfer bytes to text buffer, so that we
-				// can process the message as a String.
-				for (int i = 0; i < numBytesRead;  i++) {
-					mText.append((char) rbuf[i]);
-				}
-				readerHandler.post(new Runnable() {
-					public void run() {
-						String received = mText.toString();						
-						mapActivity.notifyMapService(received);
-						mText.setLength(0);
-					}
-				});
-				try {
-					Thread.currentThread().sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				incomingChar = (char) rbuf[0];
+				
+				switch(incomingChar) {
+				// If incomingChar is a newline, then we are done processing
+				// the current GPS message.
+				case '\n':
+					handleEndOfMessage();
+					break;
+				// Otherwise, just append the incoming character to the text buffer.
+				default:
+					mText.append(incomingChar);
 				}
 			}
 		}
