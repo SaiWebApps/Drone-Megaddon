@@ -19,6 +19,16 @@ public class CommunicationServer
 	private final UartConfig serialConfig = new UartConfig(BAUD_RATE,
 			DATA_BITS, STOP_BITS, PARITY, DTR_ON, RTS_ON);
 
+	private final int SLIP = 0;
+
+	// Slipstream byte definitions
+	private final int MAX_SLIP_BUF = 1024;
+	private final byte ESC = (byte) 0xDB;
+	private final byte START = (byte) 0xC1;
+	private final byte END = (byte) 0xC0;
+	private final byte ESC_END = (byte) 0xDC;
+	private final byte ESC_ESC = (byte) 0xDD;
+
 	// Activity using this CommunicationServer
 	private MapActivity mapActivity;
 	// Object used to create and manage USB serial communication
@@ -68,16 +78,24 @@ public class CommunicationServer
 	{
 		private Handler readerHandler = new Handler();
 		private StringBuilder mText = new StringBuilder();
-
+		private boolean slipRdytoRead = false;
+		
 		/**
-		 * Invoked at the end of the current GPS message.
-		 * At this point, add the most recent GPS message to the MapService's
-		 * message queue, so that the drone's current location can be updated.
-		 * Clear the text buffer afterwards, so that we can start processing the
-		 * next message.
+		 * Invoked if the byte received is an ASCII character.
+		 * If the received character is not a new line, append it to the text
+		 * buffer. Otherwise, we have received an entire GPS message, so we can
+		 * now process it.
 		 */
-		private void handleEndOfMessage()
+		private void handleAscii(byte receivedByte)
 		{
+            char receivedChar = (char) receivedByte;            
+            if (receivedChar != '\n') {
+                mText.append(receivedChar);
+                return;
+            }
+
+            // New-line character means we've reached end of current message.
+            // So, add message to MapService's message queue, and clear text buffer.
 			readerHandler.post(new Runnable() {
 				public void run() {
 					String received = mText.toString();						
@@ -86,33 +104,94 @@ public class CommunicationServer
 				}
 			});
 		}
-		
+
+        private boolean slipChecksum(byte[] slipBuf, int received) 
+        {
+			byte checksum = 0;
+			for (int i = 1; i < received - 1; ++i) {
+				checksum += slipBuf[i];
+			}
+			checksum &= 0x7F;
+			return checksum == slipBuf[received - 1];
+		}
+
+		private void handleSlip() 
+        {
+			int mode = SLIP;
+			int numBytesRead;
+			int received = 0;
+			int res = 0;
+			byte[] sbyte = new byte[1]; // new slip byte
+			byte[] slipBuf = new byte[MAX_SLIP_BUF];
+
+			if (slipRdytoRead != false) {
+				return;
+			}
+
+			while(true) {
+				numBytesRead = serialManager.read(sbyte, 1);
+				if (numBytesRead > 0) {
+					switch (sbyte[0]) {
+					case END: 
+						if (received != 0) {
+							byte size;
+							size = slipBuf[0];
+							if ((received - 2) != size) {
+								break;
+							}
+							if (!slipChecksum(slipBuf, received)) {
+								break;
+							}
+							// valid buffer received; now process it!
+							//							server_tx
+						}
+						break;
+					case ESC:
+						do {
+							res = serialManager.read(sbyte, 1);
+						} while (res < 0); // assuming read returns -1 on error?
+
+						switch (sbyte[0]) {
+						case ESC_END:
+							sbyte[0] = END;
+							break;
+						case ESC_ESC:
+							sbyte[0] = ESC;
+							break;
+						}
+					default: 
+						if (received < MAX_SLIP_BUF) {
+							slipBuf[received++] = sbyte[0];
+						}
+					}
+				}
+				slipRdytoRead = true;
+			}
+		}
+
+	
 		@Override
 		public void run()
 		{
 			int numBytesRead;
 			byte[] rbuf = new byte[2];
-			char incomingChar;
+            byte receivedByte = 0x00;
 
 			while(true) {
+				// Read the next byte.
 				numBytesRead = serialManager.read(rbuf, 1);
 				rbuf[numBytesRead] = 0;
 				if (numBytesRead == 0) {
 					continue;
 				}
 
-				incomingChar = (char) rbuf[0];
-				
-				switch(incomingChar) {
-				// If incomingChar is a newline, then we are done processing
-				// the current GPS message.
-				case '\n':
-					handleEndOfMessage();
-					break;
-				// Otherwise, just append the incoming character to the text buffer.
-				default:
-					mText.append(incomingChar);
-				}
+                receivedByte = rbuf[0];
+                if (receivedByte == START) {
+                    handleSlip();   
+                }
+                else {             				
+                    handleAscii(rbuf[0]);
+                }
 			}
 		}
 	}
