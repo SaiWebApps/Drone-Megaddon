@@ -8,14 +8,19 @@ import com.google.android.gms.maps.model.*;
 
 public class Drone 
 {
-	private final int DEFAULT_DRONE_ID = R.drawable.drone;
-	private final int SELECTED_DRONE_ID = R.drawable.selected_drone;
-	private final BitmapDescriptor DEFAULT_DRONE_IMG = BitmapDescriptorFactory.fromResource(DEFAULT_DRONE_ID);
-	private final BitmapDescriptor SELECTED_DRONE_IMG = BitmapDescriptorFactory.fromResource(SELECTED_DRONE_ID);
+	private static final BitmapDescriptor DEFAULT_DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.drone);
+	private static final BitmapDescriptor SELECTED_DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.selected_drone);
+	private static final BitmapDescriptor DEFAULT_SC2DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.sc2drone);
+	private static final BitmapDescriptor SELECTED_SC2DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.selected_sc2drone);
+
+	private static BitmapDescriptor defaultDroneImage = DEFAULT_DRONE_IMG;
+	private static BitmapDescriptor selectedDroneImage = SELECTED_DRONE_IMG;
+	
 	private final Handler handler = new Handler();
 	private final MarkerOptions currentLocationMarkerOptions = new MarkerOptions();
-
+	
 	private int droneId;
+	public static boolean isSC2;
 	private boolean isSelected;
 	private GoogleMap map;
 	private Marker currentLocationMarker;
@@ -26,7 +31,7 @@ public class Drone
 		this.isSelected = false;
 		this.map = map;
 		this.droneId = droneId;
-		this.currentLocationMarkerOptions.icon(DEFAULT_DRONE_IMG).title("Drone " + droneId);		
+		this.currentLocationMarkerOptions.icon(defaultDroneImage).title("Drone " + droneId);		
 	}
 
 	public int getDroneId()
@@ -46,11 +51,11 @@ public class Drone
 	
 	public void toggleSelect()
 	{
-		this.isSelected = !this.isSelected;
-		if (this.isSelected) {
-			this.currentLocationMarker.setIcon(SELECTED_DRONE_IMG);
+		isSelected = !isSelected;
+		if (isSelected) {
+			currentLocationMarker.setIcon(selectedDroneImage);
 		} else {
-			this.currentLocationMarker.setIcon(DEFAULT_DRONE_IMG);
+			currentLocationMarker.setIcon(defaultDroneImage);
 		}
 	}
 	
@@ -81,5 +86,21 @@ public class Drone
 		// Issue a new movement command.
 		movementCommand = new MoveDrone(map, handler, currentLocationMarker, destinationMarker);
 		handler.post(movementCommand);
+	}
+	
+	public void refreshDroneIcon() {
+		if (isSC2) {
+			defaultDroneImage = DEFAULT_SC2DRONE_IMG;
+			selectedDroneImage = SELECTED_SC2DRONE_IMG;
+		} else {
+			defaultDroneImage = DEFAULT_DRONE_IMG;
+			selectedDroneImage = SELECTED_DRONE_IMG;
+		}
+		
+		if (isSelected) {
+			currentLocationMarker.setIcon(selectedDroneImage);
+		} else {
+			currentLocationMarker.setIcon(defaultDroneImage);
+		}
 	}
 }

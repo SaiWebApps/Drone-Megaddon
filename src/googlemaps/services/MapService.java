@@ -114,6 +114,18 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		}
 		return null;
 	}
+	
+	public List<Drone> getAllDrones() {
+		List<Drone> Drones = new ArrayList<Drone>();
+		for (int i = 0; i < droneMap.size(); i++) {
+			int key = droneMap.keyAt(i);
+			Drone d = droneMap.get(key);
+		    if (d != null) {
+		    	Drones.add(d);
+		    }
+		}
+		return Drones;
+	}
 
 	public List<Drone> getSelectedDrones()
 	{
@@ -163,7 +175,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		List<Drone> selectedDrones = getSelectedDrones();
 		// Do nothing if no drones were selected.
 		if (selectedDrones.isEmpty()) {
-			addDrone(42, clickedLocation);
+			addDrone((int) (Math.random() * 255), clickedLocation);
 			return;
 		}
 		

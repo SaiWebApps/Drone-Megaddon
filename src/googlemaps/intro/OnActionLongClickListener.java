@@ -36,6 +36,7 @@ public class OnActionLongClickListener implements OnItemLongClickListener {
 			"Up",
 			"Down",
 			"Group Select",
+			"Transform"
 	};
 	
 	@Override

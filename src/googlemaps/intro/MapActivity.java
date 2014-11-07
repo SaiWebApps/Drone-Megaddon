@@ -1,11 +1,15 @@
 package googlemaps.intro;
 
+import java.util.List;
+
 import com.google.android.gms.maps.MapsInitializer;
 
 import googlemaps.services.CommunicationServer;
+import googlemaps.services.Drone;
 import googlemaps.services.MapService;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 public class MapActivity extends Activity 
@@ -44,5 +48,10 @@ public class MapActivity extends Activity
 		serialCommService.closeUSBSerial();
 		mapService.releaseResources();
 		super.onDestroy();
+	}
+	
+	public MapService getMapService()
+	{
+		return mapService;
 	}
 }
