@@ -1,6 +1,10 @@
 package googlemaps.intro;
 
+import java.util.List;
+
 import googlemaps.intro.R;
+import googlemaps.services.Drone;
+import googlemaps.services.MapService;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,6 +14,8 @@ import android.widget.RelativeLayout;
 
 public class OnActionClickListener implements OnItemClickListener 
 {
+	private boolean isSC2 = false;	
+	private MapActivity mapActivity; 
 	public int[] mActionsOff = new int[] {
 			R.drawable.sc2land_or,
 			R.drawable.sc2xor,
@@ -19,6 +25,7 @@ public class OnActionClickListener implements OnItemClickListener
 			R.drawable.sc2rain,
 			R.drawable.sc2missiles,
 			R.drawable.sc2crosshairs,
+			R.drawable.sc2atomicboom,
 	};
 	
 	public int[] mActionsOn = new int[] {
@@ -30,12 +37,13 @@ public class OnActionClickListener implements OnItemClickListener
 			R.drawable.sc2bunker,
 			R.drawable.sc2bunker,
 			R.drawable.sc2cross,
+			R.drawable.sc2drone,
 	};
 	
 	boolean[] toggleState = new boolean[mActionsOff.length];
-	
-	public OnActionClickListener() {
-		
+
+	public OnActionClickListener(MapActivity mapActivity) {
+		this.mapActivity = mapActivity;
 	}
 	
 	@Override
@@ -48,6 +56,21 @@ public class OnActionClickListener implements OnItemClickListener
 			iv.setImageResource(mActionsOff[position]);
 		} else {
 			iv.setImageResource(mActionsOn[position]);	
+		}
+		
+		if(action.getActionName().equals("changeicon")) {
+			onToggleIcon();
+		}
+	}
+
+	// Toggle icon states
+	public void onToggleIcon() {
+		List <Drone> droneList = mapActivity.getMapService().getAllDrones();
+		Drone d;
+		Drone.isSC2 = !Drone.isSC2;
+		for(int i = 0; i < droneList.size(); ++i) {		
+			d = droneList.get(i);
+			d.refreshDroneIcon();
 		}
 	}
 }
