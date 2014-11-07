@@ -19,8 +19,6 @@ public class CommunicationServer
     private final UartConfig serialConfig = new UartConfig(BAUD_RATE,
             DATA_BITS, STOP_BITS, PARITY, DTR_ON, RTS_ON);
 
-    private final int SLIP = 0;
-
     // Slipstream byte definitions
     private final int MAX_SLIP_BUF = 1024;
     private final byte ESC = (byte) 0xDB;
@@ -117,7 +115,6 @@ public class CommunicationServer
 
         private void handleSlip() 
         {
-            int mode = SLIP;
             int numBytesRead;
             int received = 0;
             int res = 0;

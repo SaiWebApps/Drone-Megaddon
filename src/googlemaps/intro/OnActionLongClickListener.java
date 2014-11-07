@@ -1,16 +1,12 @@
 package googlemaps.intro;
 
-import android.app.Activity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +48,6 @@ public class OnActionLongClickListener implements OnItemLongClickListener {
 		TextView text = (TextView) layout.findViewById(R.id.toasttext);
 		text.setText(mActionsDesc[position]);
 
-		Action action = (Action) av.getItemAtPosition(position);
 		final Toast toast = new Toast(av.getContext());
 		toast.setDuration(Toast.LENGTH_SHORT);
 		toast.setView(layout);

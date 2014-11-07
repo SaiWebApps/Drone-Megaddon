@@ -6,13 +6,11 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MoveDrone implements Runnable
 {
@@ -34,7 +32,6 @@ public class MoveDrone implements Runnable
 		this.sourceMarker = source;
 		sourceMarker.setRotation(0);
 		sourceMarker.setRotation(computeAngle(source, dest));
-//		sourceMarker.setRotation(45.5f);
 		this.destinationMarker = dest;
 		initialize(map);
 	}
@@ -73,10 +70,6 @@ public class MoveDrone implements Runnable
 			angle = 90 - angle;             // Quad 1
 		}
 
-		Log.e("Src", "(" + x1 + "," + y1 + ")" );
-		Log.e("Dest", "(" + x2 + "," + y2 + ")" );
-		Log.e("xyDiff", "(" + xdiff + "," + ydiff + ")" );
-		Log.e("Ang", "" + angle);
 		return (float) angle;
 	}
 	

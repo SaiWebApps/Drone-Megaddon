@@ -64,7 +64,7 @@ public class GPSParser {
 		return ((coordinate - end / 100.0) + (end / 60.0)) / 100.0;
 	}
 
-	private boolean validNMEAChecksum (String packet) {
+	private boolean validNMEAChecksum(String packet) {
 		final int start = 1;
 		final int end = packet.indexOf('*');
 		int computedChecksum = 0;

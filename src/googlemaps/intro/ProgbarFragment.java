@@ -2,22 +2,16 @@ package googlemaps.intro;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 public class ProgbarFragment extends Fragment {
-	private static final int PROGRESS = 0x1;
 
 	private ProgressBar mProgressRight, mProgressLeft;
-	private int mProgressStatus = 0;
-
-	private Handler mHandler = new Handler();
 
 	@Override
 	public void onAttach(Activity a)
