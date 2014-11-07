@@ -4,8 +4,6 @@ import java.util.List;
 
 import googlemaps.intro.R;
 import googlemaps.services.Drone;
-import googlemaps.services.MapService;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -14,7 +12,6 @@ import android.widget.RelativeLayout;
 
 public class OnActionClickListener implements OnItemClickListener 
 {
-	private boolean isSC2 = false;	
 	private MapActivity mapActivity; 
 	public int[] mActionsOff = new int[] {
 			R.drawable.sc2land_or,
