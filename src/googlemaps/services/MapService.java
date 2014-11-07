@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import googlemaps.intro.MapActivity;
+import googlemaps.intro.ProgbarFragment;
 import googlemaps.intro.R;
 import googlemaps.services.GPSParser.Coordinates;
 import android.os.Handler;
@@ -79,6 +80,8 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 							destMarker.setVisible(false);
 							droneMap.get(1).moveToDestMarker(destMarker);
 						}
+						ProgbarFragment pf = (ProgbarFragment) mapActivity.getFragmentManager().findFragmentById(R.id.progbar_fragment);
+						pf.setAltProgress(coord.altitudeGps);
 					}
 				}
 				receivedMessageHandler.postDelayed(this, 50);

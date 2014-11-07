@@ -12,7 +12,7 @@ import android.widget.ProgressBar;
 public class ProgbarFragment extends Fragment {
 
 	private ProgressBar mProgressRight, mProgressLeft;
-
+	private final int MAX_ALTITUDE = 2000;
 	@Override
 	public void onAttach(Activity a)
 	{
@@ -26,11 +26,11 @@ public class ProgbarFragment extends Fragment {
 		// Creating view corresponding to the fragment
 		View v = inflater.inflate(R.layout.fragment_progbar, container, false);
 
-		mProgressRight = (ProgressBar) v.findViewById(R.id.progress_bar_left);
-		mProgressRight.setProgress(75);
+		mProgressLeft = (ProgressBar) v.findViewById(R.id.progress_bar_left);
+		mProgressLeft.setProgress(75);
 
-		mProgressLeft = (ProgressBar) v.findViewById(R.id.progress_bar_right);
-		mProgressLeft.setProgress(25);
+		mProgressRight = (ProgressBar) v.findViewById(R.id.progress_bar_right);
+		mProgressRight.setProgress(25);
 		//        // Start lengthy operation in a background thread
 		//        new Thread(new Runnable() {
 		//            public void run() {
@@ -47,6 +47,16 @@ public class ProgbarFragment extends Fragment {
 		//            }
 		//        }).start();
 		return v;
+	}
+	public void setAltProgress(double altitudeGps) {
+		// Saturate
+		if (altitudeGps > MAX_ALTITUDE) {
+			altitudeGps = MAX_ALTITUDE;
+		} else if (altitudeGps < 0) {
+			altitudeGps = 0;
+		}
+		
+		mProgressRight.setProgress((int)(altitudeGps / MAX_ALTITUDE * 100));
 	}
 
 	public static void setColorOfProgressBar(ProgressBar mProgressBar, int mColor){

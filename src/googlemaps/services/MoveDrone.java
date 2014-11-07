@@ -56,17 +56,12 @@ public class MoveDrone implements Runnable
 		double angle = Math.toDegrees(Math.atan(Math.abs(ydiff)/Math.abs(xdiff)));
 		
 		if (ydiff < 0 && xdiff < 0) {
-			Log.e("Q", "uad3");
 			angle = 270 - angle;            // Quad 3
 		} else if (ydiff > 0 && xdiff < 0) {
-			Log.e("Q", "uad2");
-			Log.e("OrigAng", "" + angle);
 			angle += 270;                   // Quad 2
 		} else if (ydiff < 0 && xdiff > 0) {
-			Log.e("Q", "uad4");
 			angle += 90;                    // Quad 4
 		} else {
-			Log.e("Q", "uad1");
 			angle = 90 - angle;             // Quad 1
 		}
 

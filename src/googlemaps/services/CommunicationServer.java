@@ -166,7 +166,6 @@ public class CommunicationServer
             }
         }
 
-    
         @Override
         public void run()
         {
