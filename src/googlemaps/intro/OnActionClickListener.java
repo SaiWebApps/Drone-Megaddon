@@ -2,8 +2,9 @@ package googlemaps.intro;
 
 import java.util.List;
 
+import drone_megaddon.ui_services.Drone;
+
 import googlemaps.intro.R;
-import googlemaps.services.Drone;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;

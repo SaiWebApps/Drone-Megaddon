@@ -1,4 +1,4 @@
-package googlemaps.services;
+package drone_megaddon.ui_services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import googlemaps.intro.MapActivity;
 import googlemaps.intro.R;
-import googlemaps.services.GPSParser.Coordinates;
 import android.os.Handler;
 import android.util.SparseArray;
 
@@ -17,14 +16,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import drone_megaddon.communication.Command;
+
+/**
+ * Handles all UI-related activities on the DroneMegaddon Google Map.
+ */
 public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener
 {	
-	private final Handler receivedMessageHandler = new Handler();
+	private final long COMMAND_PROCESSING_PERIOD = 100; // ms
 	private final float DEST_MARKER_COLOR = BitmapDescriptorFactory.HUE_GREEN;
 	private final MarkerOptions destinationMarkerOptions = new MarkerOptions();
 
 	private SparseArray<Drone> droneMap = new SparseArray<Drone>();
-	private LinkedBlockingDeque<String> incomingInfo = new LinkedBlockingDeque<String>();
+	
+	private Handler commandHandler = new Handler();
+	private LinkedBlockingDeque<Command> pendingCommands = new LinkedBlockingDeque<Command>();
 
 	private GoogleMap googleMap;
 	private Marker destinationMarker;
@@ -36,61 +42,41 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		this.mapActivity = mapActivity;
 		this.destinationMarkerOptions.icon(BitmapDescriptorFactory.
 				defaultMarker(DEST_MARKER_COLOR));
-		initGoogleMap();		
-		registerHandlerForDroneInformation();
+		initGoogleMap();
+		commandHandler.post(new CommandProcessor());
 	}
 
+	/**
+	 * Initialize the Google Map.
+	 */
 	private void initGoogleMap()
 	{
 		this.googleMap = ((MapFragment) mapActivity.getFragmentManager().
 				findFragmentById(R.id.map)).getMap();
-
 		googleMap.setMyLocationEnabled(true);
 		googleMap.setBuildingsEnabled(true);
 		googleMap.setIndoorEnabled(true);
-		googleMap.setOnMarkerClickListener(this);
-
-		// Set map listeners.
 		googleMap.setOnMapClickListener(this);
 		googleMap.setOnMarkerClickListener(this);
 	}
-
-	private void registerHandlerForDroneInformation()
+	
+	/**
+	 * Add the specified command to the pendingCommands queue.
+	 * @param command - Command to queue; cannot be null
+	 */
+	public void queueCommand(Command command)
 	{
-		receivedMessageHandler.post(new Runnable() {
-			public void run() {
-				if (!incomingInfo.isEmpty()) {
-					String info = incomingInfo.pop();
-					GPSParser parser = new GPSParser();
-					Coordinates coord = parser.gpsParseLine(info);
-
-					if(coord != null) {
-						String latitudeStr = String.format("%.3f", coord.latitude);
-						String longitudeStr = String.format("%.3f", coord.longitude);
-						float latitude = Float.parseFloat(latitudeStr);
-						float longitude = Float.parseFloat(longitudeStr);
-						LatLng dest = new LatLng(latitude, longitude);
-						
-						if (droneMap.get(1) == null) {
-							addDrone(1, dest);
-						}
-						else {
-							Marker destMarker = googleMap.addMarker(new MarkerOptions().position(dest));
-							destMarker.setVisible(false);
-							droneMap.get(1).moveToDestMarker(destMarker);
-						}
-					}
-				}
-				receivedMessageHandler.postDelayed(this, 50);
-			}
-		});
+		if (command == null) {
+			return;
+		}
+		pendingCommands.add(command);
 	}
 
-	public void saveReceivedInfo(String information)
-	{
-		incomingInfo.push(information);
-	}
-
+	/**
+	 * Create a new drone, or update an existing drone's location.
+	 * @param droneId - Id of the drone being created/updated
+	 * @param location - New location on the map
+	 */
 	public void addDrone(int droneId, LatLng location)
 	{
 		Drone target = droneMap.get(droneId);
@@ -115,18 +101,24 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		return null;
 	}
 	
+	/**
+	 * @return a list of all Drones on the map
+	 */
 	public List<Drone> getAllDrones() {
-		List<Drone> Drones = new ArrayList<Drone>();
+		List<Drone> drones = new ArrayList<Drone>();
 		for (int i = 0; i < droneMap.size(); i++) {
 			int key = droneMap.keyAt(i);
 			Drone d = droneMap.get(key);
 		    if (d != null) {
-		    	Drones.add(d);
+		    	drones.add(d);
 		    }
 		}
-		return Drones;
+		return drones;
 	}
 
+	/**
+	 * @return a list of Drones that have been selected on the map
+	 */
 	public List<Drone> getSelectedDrones()
 	{
 		List<Drone> selectedDrones = new ArrayList<Drone>();
@@ -140,7 +132,9 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		return selectedDrones;
 	}
 
-	// Destroying the map and releasing resources
+	/**
+	 * Destroy map and release all resources.
+	 */
 	public void releaseResources() 
 	{
 		googleMap = null;		
@@ -175,7 +169,6 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		List<Drone> selectedDrones = getSelectedDrones();
 		// Do nothing if no drones were selected.
 		if (selectedDrones.isEmpty()) {
-			addDrone((int) (Math.random() * 255), clickedLocation);
 			return;
 		}
 		
@@ -185,6 +178,31 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 				position(clickedLocation));
 		for (Drone selected : selectedDrones) {
 			selected.moveToDestMarker(destinationMarker);
+		}
+	}
+	
+	/**
+	 * Used to poll the pendingCommands queue every COMMAND_PROCESSING_PERIOD
+	 * ms, and process any commands on the queue.
+	 */
+	private class CommandProcessor implements Runnable
+	{
+		public CommandProcessor() {}
+		
+		@Override
+		public void run()
+		{
+			// If commands queue is not empty, dequeue a command,
+			// and execute it.
+			if (!pendingCommands.isEmpty()) {
+				Command cmd = pendingCommands.removeFirst();
+				// MapService.this is used to refer to the outer
+				// class's "this."
+				cmd.execute(MapService.this);
+			}
+			// Repeat in 100 ms.
+			commandHandler.postDelayed(CommandProcessor.this, 
+					COMMAND_PROCESSING_PERIOD);
 		}
 	}
 }

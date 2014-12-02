@@ -1,4 +1,4 @@
-package googlemaps.services;
+package drone_megaddon.ui_services;
 
 import googlemaps.intro.R;
 import android.os.Handler;
@@ -8,11 +8,15 @@ import com.google.android.gms.maps.model.*;
 
 public class Drone 
 {
-	private static final BitmapDescriptor DEFAULT_DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.drone);
-	private static final BitmapDescriptor SELECTED_DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.selected_drone);
-	private static final BitmapDescriptor DEFAULT_SC2DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.sc2drone);
-	private static final BitmapDescriptor SELECTED_SC2DRONE_IMG = BitmapDescriptorFactory.fromResource(R.drawable.selected_sc2drone);
-
+	private static final BitmapDescriptor DEFAULT_DRONE_IMG = 
+			BitmapDescriptorFactory.fromResource(R.drawable.drone);
+	private static final BitmapDescriptor SELECTED_DRONE_IMG = 
+			BitmapDescriptorFactory.fromResource(R.drawable.selected_drone);
+	private static final BitmapDescriptor DEFAULT_SC2DRONE_IMG = 
+			BitmapDescriptorFactory.fromResource(R.drawable.sc2drone);
+	private static final BitmapDescriptor SELECTED_SC2DRONE_IMG = 
+			BitmapDescriptorFactory.fromResource(R.drawable.selected_sc2drone);
+	
 	private static BitmapDescriptor defaultDroneImage = DEFAULT_DRONE_IMG;
 	private static BitmapDescriptor selectedDroneImage = SELECTED_DRONE_IMG;
 	

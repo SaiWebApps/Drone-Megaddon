@@ -1,9 +1,8 @@
-package googlemaps.services;
+package drone_megaddon.ui_services;
 
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
