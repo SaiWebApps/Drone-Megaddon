@@ -18,6 +18,7 @@ local.properties
 *.pydevproject
 .project
 .metadata
+bin/*
 bin/**
 tmp/**
 tmp/**/*

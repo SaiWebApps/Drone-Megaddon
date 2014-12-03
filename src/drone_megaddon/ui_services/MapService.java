@@ -169,6 +169,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		List<Drone> selectedDrones = getSelectedDrones();
 		// Do nothing if no drones were selected.
 		if (selectedDrones.isEmpty()) {
+			addDrone(42, clickedLocation); //DHT: Crazy test drone!!
 			return;
 		}
 		

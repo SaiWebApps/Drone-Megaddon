@@ -22,15 +22,17 @@ public class MoveDrone implements Runnable
 	private Handler movementHandler;
 	private Marker sourceMarker;
 	private Marker destinationMarker;
+	private Marker hpMarker;
 	private LatLng startLatLng;
 	private LatLng destLatLng;
 	
-	public MoveDrone(GoogleMap map, Handler handler, Marker source, Marker dest)
+	public MoveDrone(GoogleMap map, Handler handler, Marker source, Marker dest, Marker hp)
 	{
 		this.movementHandler = handler;
 		this.sourceMarker = source;
 		sourceMarker.setRotation(0);
 		sourceMarker.setRotation(computeAngle(source, dest));
+		this.hpMarker = hp;
 		this.destinationMarker = dest;
 		initialize(map);
 	}
@@ -70,12 +72,15 @@ public class MoveDrone implements Runnable
 	@Override
 	public void run() 
 	{
+		LatLng newLatLng;
 		long elapsed = SystemClock.uptimeMillis() - startTime;
 	    float t = linearInterpolator.getInterpolation((float) elapsed / DURATION);
         double lat = t * destLatLng.latitude + (1 - t) * startLatLng.latitude;
 	    double lng = t * destLatLng.longitude + (1 - t) * startLatLng.longitude;
 
-	    sourceMarker.setPosition(new LatLng(lat, lng));
+	    newLatLng = new LatLng(lat, lng);
+	    hpMarker.setPosition(newLatLng);
+	    sourceMarker.setPosition(newLatLng);
         
         // We have reached the target when t = 1.
         // t < 1 -> undershoot, so continue moving towards the destinationMarkerOptions
