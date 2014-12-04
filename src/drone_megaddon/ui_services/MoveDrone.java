@@ -33,6 +33,7 @@ public class MoveDrone implements Runnable
 		sourceMarker.setRotation(0);
 		sourceMarker.setRotation(computeAngle(source, dest));
 		this.hpMarker = hp;
+		hpMarker.showInfoWindow();
 		this.destinationMarker = dest;
 		initialize(map);
 	}

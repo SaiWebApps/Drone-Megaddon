@@ -24,8 +24,6 @@ public class Drone
 			BitmapDescriptorFactory.fromResource(R.drawable.hp50);
 	private static final BitmapDescriptor HP25_IMG = 
 			BitmapDescriptorFactory.fromResource(R.drawable.hp25);
-	private static final BitmapDescriptor HP00_IMG = 
-			BitmapDescriptorFactory.fromResource(R.drawable.hp00);
 	private static BitmapDescriptor defaultDroneImage = DEFAULT_DRONE_IMG;
 	private static BitmapDescriptor selectedDroneImage = SELECTED_DRONE_IMG;
 
@@ -70,10 +68,14 @@ public class Drone
 		isSelected = !isSelected;
 		if (isSelected) {
 			currentLocationMarker.setIcon(selectedDroneImage);
-			currentHpMarker.setIcon(HP100_IMG);
+			currentHpMarker.setAlpha(1);
+			currentHpMarker.setTitle("[D1]: 29.2928, 39.7623");
+			currentHpMarker.showInfoWindow();
 		} else {
 			currentLocationMarker.setIcon(defaultDroneImage);
-			currentHpMarker.setIcon(HP00_IMG);
+			currentHpMarker.setAlpha(0); // set hpbar opacity to 0 (invisible)
+			currentHpMarker.setTitle("[D1]");
+			currentHpMarker.showInfoWindow();
 		}
 	}
 
@@ -86,6 +88,7 @@ public class Drone
 	{
 		if (currentLocationMarker == null) {
 			currentHpMarker = map.addMarker(currentHpMarkerOptions.position(location));
+			currentHpMarker.setInfoWindowAnchor(0.5f, 2.0f);
 			currentLocationMarker = map.addMarker(currentLocationMarkerOptions.position(location));
 		} else {
 			currentHpMarker.setPosition(location);

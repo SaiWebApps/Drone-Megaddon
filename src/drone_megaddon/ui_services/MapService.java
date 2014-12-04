@@ -6,10 +6,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import googlemaps.intro.MapActivity;
 import googlemaps.intro.R;
+import android.content.Context;
 import android.os.Handler;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -58,6 +63,26 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		googleMap.setIndoorEnabled(true);
 		googleMap.setOnMapClickListener(this);
 		googleMap.setOnMarkerClickListener(this);
+		googleMap.setInfoWindowAdapter(new InfoWindowAdapter() {
+			@Override
+			public View getInfoWindow(Marker marker) {
+			    // Getting view from the layout file
+				LayoutInflater inflater = (LayoutInflater) mapActivity
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			    View v = inflater.inflate(R.layout.marker_text, null);
+
+			    TextView title = (TextView) v.findViewById(R.id.marker_title);
+			    title.setText(marker.getTitle());
+
+			    return v;
+			}
+
+			@Override
+			public View getInfoContents(Marker arg0) {
+			    // TODO Auto-generated method stub
+			    return null;
+			}
+		});
 	}
 	
 	/**
@@ -144,7 +169,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	@Override
 	public boolean onMarkerClick(Marker clickedMarker) {
 		// Show the drone's identifying information (Drone droneId).
-		clickedMarker.showInfoWindow();
+//		clickedMarker.showInfoWindow();
 
 		// Find out which drone was selected/unselected, and toggle its
 		// "select" status accordingly.
