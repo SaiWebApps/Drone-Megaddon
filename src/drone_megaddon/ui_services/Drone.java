@@ -69,12 +69,23 @@ public class Drone
 		if (isSelected) {
 			currentLocationMarker.setIcon(selectedDroneImage);
 			currentHpMarker.setAlpha(1);
-			currentHpMarker.setTitle("[D1]: 29.2928, 39.7623");
+			if (movementCommand != null) {
+				movementCommand.setSelected(true);
+				movementCommand.refreshDroneCoord(currentHpMarker);
+			} else {
+				updateCoordTitle(currentHpMarker, true);
+			}
 			currentHpMarker.showInfoWindow();
 		} else {
 			currentLocationMarker.setIcon(defaultDroneImage);
 			currentHpMarker.setAlpha(0); // set hpbar opacity to 0 (invisible)
-			currentHpMarker.setTitle("[D1]");
+
+			if (movementCommand != null) {
+				movementCommand.setSelected(false);
+				movementCommand.refreshDroneCoord(currentHpMarker);
+			} else {
+				updateCoordTitle(currentHpMarker, false);
+			}
 			currentHpMarker.showInfoWindow();
 		}
 	}
@@ -107,7 +118,7 @@ public class Drone
 			handler.removeCallbacks(movementCommand, null);
 		}
 		// Issue a new movement command.
-		movementCommand = new MoveDrone(map, handler, currentLocationMarker, destinationMarker, currentHpMarker);
+		movementCommand = new MoveDrone(map, handler, currentLocationMarker, destinationMarker, currentHpMarker, getDroneId());
 		handler.post(movementCommand);
 	}
 
@@ -125,5 +136,21 @@ public class Drone
 		} else {
 			currentLocationMarker.setIcon(defaultDroneImage);
 		}
+	}
+	
+	public void updateCoordTitle(Marker hpMarker, boolean selected) {
+		if (selected) {
+			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]: " + 
+					getLatLngStr(hpMarker.getPosition()));
+		} else {
+			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]");
+		}
+	}
+	
+	private String getLatLngStr(LatLng position) {
+		// Round to 2 decimal points
+		String coordStr = String.format("%.2f", position.latitude) + ",";
+	    coordStr += String.format("%.2f", position.longitude);
+		return coordStr;
 	}
 }
