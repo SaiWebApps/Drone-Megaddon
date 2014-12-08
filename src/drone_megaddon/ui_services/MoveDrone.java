@@ -25,8 +25,11 @@ public class MoveDrone implements Runnable
 	private Marker hpMarker;
 	private LatLng startLatLng;
 	private LatLng destLatLng;
+	private int droneId;
+	private boolean selected;
 	
-	public MoveDrone(GoogleMap map, Handler handler, Marker source, Marker dest, Marker hp)
+	public MoveDrone(GoogleMap map, Handler handler, Marker source, 
+			Marker dest, Marker hp, int droneId)
 	{
 		this.movementHandler = handler;
 		this.sourceMarker = source;
@@ -35,6 +38,8 @@ public class MoveDrone implements Runnable
 		this.hpMarker = hp;
 		hpMarker.showInfoWindow();
 		this.destinationMarker = dest;
+		this.droneId = droneId;
+		this.selected = true;
 		initialize(map);
 	}
 	
@@ -81,6 +86,7 @@ public class MoveDrone implements Runnable
 
 	    newLatLng = new LatLng(lat, lng);
 	    hpMarker.setPosition(newLatLng);
+	    refreshDroneCoord(hpMarker);
 	    sourceMarker.setPosition(newLatLng);
         
         // We have reached the target when t = 1.
@@ -93,5 +99,29 @@ public class MoveDrone implements Runnable
         	// Remove destinationMarkerOptions marker from map once source marker reaches/passes it.
         	destinationMarker.remove();
         }
+	}
+	
+	public void refreshDroneCoord(Marker hpMarker) {
+		if (getSelected()) {
+			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]: " + 
+					getLatLngStr(hpMarker.getPosition()));
+		} else {
+			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]");
+		}
+		hpMarker.showInfoWindow();
+	}
+	
+	private String getLatLngStr(LatLng position) {
+		// Round to 2 decimal points
+		String coordStr = String.format("%.2f", position.latitude) + ",";
+	    coordStr += String.format("%.2f", position.longitude);
+		return coordStr;
+	}
+	
+	public void setSelected(boolean selectState) {
+		this.selected = selectState;
+	}
+	public boolean getSelected() {
+		return this.selected;
 	}
 }
