@@ -21,7 +21,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import drone_megaddon.communication.Command;
+import drone_megaddon.communication.CommunicationServer;
+import drone_megaddon.communication.rx.RxCommand;
+import drone_megaddon.communication.tx.FlyCommand;
 
 /**
  * Handles all UI-related activities on the DroneMegaddon Google Map.
@@ -33,9 +35,9 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	private final MarkerOptions destinationMarkerOptions = new MarkerOptions();
 
 	private SparseArray<Drone> droneMap = new SparseArray<Drone>();
-	
-	private Handler commandHandler = new Handler();
-	private LinkedBlockingDeque<Command> pendingCommands = new LinkedBlockingDeque<Command>();
+
+	private Handler commandHandler;
+	private LinkedBlockingDeque<RxCommand> pendingCommands;
 
 	private GoogleMap googleMap;
 	private Marker destinationMarker;
@@ -47,6 +49,9 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		this.mapActivity = mapActivity;
 		this.destinationMarkerOptions.icon(BitmapDescriptorFactory.
 				defaultMarker(DEST_MARKER_COLOR));
+		this.commandHandler = new Handler();
+		this.pendingCommands = new LinkedBlockingDeque<RxCommand>();
+
 		initGoogleMap();
 		commandHandler.post(new CommandProcessor());
 	}
@@ -64,36 +69,35 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		googleMap.setOnMapClickListener(this);
 		googleMap.setOnMarkerClickListener(this);
 		googleMap.setInfoWindowAdapter(new InfoWindowAdapter() {
+
 			@Override
-			public View getInfoWindow(Marker marker) {
-			    // Getting view from the layout file
+			public View getInfoWindow(Marker marker) 
+			{
+				// Getting view from the layout file
 				LayoutInflater inflater = (LayoutInflater) mapActivity
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			    View v = inflater.inflate(R.layout.marker_text, null);
+						.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				View v = inflater.inflate(R.layout.marker_text, null);
 
-			    TextView title = (TextView) v.findViewById(R.id.marker_title);
-			    title.setText(marker.getTitle());
+				TextView title = (TextView) v.findViewById(R.id.marker_title);
+				title.setText(marker.getTitle());
 
-			    return v;
+				return v;
 			}
 
 			@Override
-			public View getInfoContents(Marker arg0) {
-			    // TODO Auto-generated method stub
-			    return null;
+			public View getInfoContents(Marker arg0) 
+			{
+				return null;
 			}
 		});
 	}
-	
+
 	/**
 	 * Add the specified command to the pendingCommands queue.
-	 * @param command - Command to queue; cannot be null
+	 * @param command - RxCommand to queue; cannot be null
 	 */
-	public void queueCommand(Command command)
+	public void queueRxCommand(RxCommand command)
 	{
-		if (command == null) {
-			return;
-		}
 		pendingCommands.add(command);
 	}
 
@@ -125,7 +129,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @return a list of all Drones on the map
 	 */
@@ -134,9 +138,9 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		for (int i = 0; i < droneMap.size(); i++) {
 			int key = droneMap.keyAt(i);
 			Drone d = droneMap.get(key);
-		    if (d != null) {
-		    	drones.add(d);
-		    }
+			if (d != null) {
+				drones.add(d);
+			}
 		}
 		return drones;
 	}
@@ -169,7 +173,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	@Override
 	public boolean onMarkerClick(Marker clickedMarker) {
 		// Show the drone's identifying information (Drone droneId).
-//		clickedMarker.showInfoWindow();
+		//		clickedMarker.showInfoWindow();
 
 		// Find out which drone was selected/unselected, and toggle its
 		// "select" status accordingly.
@@ -192,21 +196,38 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		}
 
 		List<Drone> selectedDrones = getSelectedDrones();
-		// Do nothing if no drones were selected.
+		// If no drones were selected, then do nothing.
 		if (selectedDrones.isEmpty()) {
 			addDrone(42, clickedLocation); //DHT: Crazy test drone!!
 			return;
 		}
-		
+
+		CommunicationServer server = mapActivity.getCommunicationServer();
+		if (selectedDrones.size() == 1) {
+			Drone d = selectedDrones.get(0);
+			server.queueTxCommand(new FlyCommand(d.getDroneId(), clickedLocation, 1.0));
+		}
+		else {
+			double count = 0;
+			
+			for (Drone d : selectedDrones) {
+				LatLng approxLoc = new LatLng(clickedLocation.latitude + (count / 1000), 
+						clickedLocation.longitude + (count / 1000));
+				count++;
+				server.queueTxCommand(new FlyCommand(d.getDroneId(), approxLoc, 1.0));
+			}
+		}
+
 		// If at least 1 drone was selected, place a marker at the destination,
 		// and then move the drone to that location.
 		destinationMarker = googleMap.addMarker(destinationMarkerOptions.
 				position(clickedLocation));
+
 		for (Drone selected : selectedDrones) {
 			selected.moveToDestMarker(destinationMarker);
 		}
 	}
-	
+
 	/**
 	 * Used to poll the pendingCommands queue every COMMAND_PROCESSING_PERIOD
 	 * ms, and process any commands on the queue.
@@ -214,14 +235,14 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	private class CommandProcessor implements Runnable
 	{
 		public CommandProcessor() {}
-		
+
 		@Override
 		public void run()
 		{
 			// If commands queue is not empty, dequeue a command,
 			// and execute it.
 			if (!pendingCommands.isEmpty()) {
-				Command cmd = pendingCommands.removeFirst();
+				RxCommand cmd = pendingCommands.removeFirst();
 				// MapService.this is used to refer to the outer
 				// class's "this."
 				cmd.execute(MapService.this);

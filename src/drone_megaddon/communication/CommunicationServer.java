@@ -1,10 +1,16 @@
 package drone_megaddon.communication;
 
+import java.util.Arrays;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import googlemaps.intro.MapActivity;
 
 import com.physicaloid.lib.Physicaloid;
 import com.physicaloid.lib.usb.driver.uart.UartConfig;
 
+import drone_megaddon.communication.rx.RxCommandFactory;
+import drone_megaddon.communication.rx.RxCommand;
+import drone_megaddon.communication.tx.TxCommand;
 import drone_megaddon.ui_services.MapService;
 
 import android.os.Handler;
@@ -29,7 +35,12 @@ public class CommunicationServer
     private MapActivity mapActivity;
     // Object used to create and manage USB serial communication
     private Physicaloid serialManager;
-
+    
+    // Handle transmissions from device to drone.
+    private final int TRANSMIT_PERIOD = 1000; //ms
+    private LinkedBlockingDeque<TxCommand> pendingTransmissions;
+    private Handler transmissionHandler;
+    
     /**
      * @param mapActivity - MapActivity requesting the creation of 
      * a CommunicationServer; used to access MapServe
@@ -38,6 +49,8 @@ public class CommunicationServer
     {
         this.mapActivity = mapActivity;
         this.serialManager = new Physicaloid(mapActivity);
+        this.pendingTransmissions = new LinkedBlockingDeque<TxCommand>();
+        this.transmissionHandler = new Handler();
     }
 
     /**
@@ -46,6 +59,8 @@ public class CommunicationServer
      */
     public void openUSBSerial()
     {
+    	// Make sure that a USB-Serial connection is not already open and that
+    	// we can open a connection successfully.
         if (serialManager.isOpened()) {
         	mapActivity.showToast("Already connected to device.");
         	return;
@@ -56,7 +71,8 @@ public class CommunicationServer
         }
         
         serialManager.setConfig(serialConfig);
-        new Thread(new SerialCommunicationReader()).start();        
+        new Thread(new SerialCommunicationReader()).start();
+        transmissionHandler.post(new Transmitter());
         mapActivity.showToast("Connected to device successfully.");
     }
 
@@ -69,14 +85,10 @@ public class CommunicationServer
             mapActivity.showToast("Unable to close serial connection.");
         }
     }
-
-    /**
-     * Write the given message onto the USB serial connection.
-     */
-    public void write(String message)
+    
+    public void queueTxCommand(TxCommand txCommand)
     {
-    	byte[] messageBytes = message.getBytes();
-    	serialManager.write(messageBytes, messageBytes.length);
+    	pendingTransmissions.add(txCommand);
     }
     
     /**
@@ -84,16 +96,16 @@ public class CommunicationServer
      */
     private class SerialCommunicationReader implements Runnable
     {
-    	private final char END_OF_MESSAGE = 255;
+    	private final char END_OF_MESSAGE = '\n';
     	
         private Handler readerHandler = new Handler();
         private StringBuilder receiveBuffer = new StringBuilder();
-        private CommandFactory commandFactory = new CommandFactory();
+        private RxCommandFactory rxCommandFactory = new RxCommandFactory();
         private MapService mapService = mapActivity.getMapService();
         
         /**
          * Add the received byte to an internal character buffer if it doesn't
-         * mark the end-of-the-message. Otherwise, use the CommandFactory to
+         * mark the end-of-the-message. Otherwise, use the RxCommandFactory to
          * construct a command using the message, and queue the command for service
          * in MapService.
          * @param receivedByte - byte received from Firefly (via USB-Serial connection)
@@ -106,14 +118,15 @@ public class CommunicationServer
         		receiveBuffer.append(receivedChar);
         		return;
         	}
+        	
         	readerHandler.post(new Runnable() {
         		
         		@Override
         		public void run() 
-        		{	
-        			Command command = commandFactory.create(receiveBuffer.toString());
+        		{
+        			RxCommand command = rxCommandFactory.create(receiveBuffer.toString());
         			if (command != null) {
-        				mapService.queueCommand(command);
+        				mapService.queueRxCommand(command);
         			}
         			receiveBuffer.setLength(0); // Clear buffer.
         		}
@@ -139,5 +152,39 @@ public class CommunicationServer
                 handleReceivedByte(rbuf[0]);
             }
         }
+    }
+    
+    private class Transmitter implements Runnable
+    {
+        private void write(String message)
+        {
+        	if (message == null || message.isEmpty()) {
+        		return;
+        	}
+        	
+        	byte[] messageBytes = message.getBytes();
+        	int numBytes = messageBytes.length;
+        	
+        	messageBytes = Arrays.copyOf(messageBytes, numBytes + 1);
+        	messageBytes[numBytes] = -1;
+        	serialManager.write(messageBytes, numBytes + 1);
+        }
+               
+    	@Override
+    	public void run()
+    	{
+    		// Keep polling queue to check if any new transmission commands have arrived.
+    		if (pendingTransmissions.isEmpty()) {
+    			StringBuffer abcd = new StringBuffer("ABCDEFGHIJKLMNOPQRSTUVWXYZ Now You know the abcs");
+    			write(abcd.toString());
+    			transmissionHandler.postDelayed(this, TRANSMIT_PERIOD);
+    			return;
+    		}
+
+    		// If something has arrived, pop from queue, and write it to drone.
+    		TxCommand command = pendingTransmissions.remove();
+    		serialManager.write(command.getMessageBytes());
+    		transmissionHandler.postDelayed(this, TRANSMIT_PERIOD);
+    	}
     }
 }

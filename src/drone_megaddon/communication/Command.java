@@ -1,11 +1,16 @@
 package drone_megaddon.communication;
 
-import drone_megaddon.ui_services.MapService;
-
-public interface Command 
+public abstract class Command 
 {
-	public int getDroneId();
-	public void setDroneId(int droneId);
+	protected int droneId;
 	
-	public void execute(MapService mapService);
+	public Command(int droneId)
+	{
+		this.droneId = droneId;
+	}
+	
+	public int getDroneId()
+	{
+		return droneId;
+	}
 }
