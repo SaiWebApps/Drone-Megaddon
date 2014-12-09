@@ -44,7 +44,8 @@ public class Drone
 		this.isSelected = false;
 		this.map = map;
 		this.droneId = droneId;
-		this.currentLocationMarkerOptions.icon(defaultDroneImage).title("Drone " + droneId).anchor(0.5f, 0.5f);		
+		this.currentLocationMarkerOptions.icon(defaultDroneImage).title("Drone "
+				+ droneId).anchor(0.5f, 0.5f).flat(true);		
 		this.currentHpMarkerOptions.icon(HP100_IMG).title("100%");
 	}
 
@@ -137,7 +138,7 @@ public class Drone
 			currentLocationMarker.setIcon(defaultDroneImage);
 		}
 	}
-	
+
 	public void updateCoordTitle(Marker hpMarker, boolean selected) {
 		if (selected) {
 			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]: " + 
@@ -146,11 +147,11 @@ public class Drone
 			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]");
 		}
 	}
-	
+
 	private String getLatLngStr(LatLng position) {
 		// Round to 2 decimal points
 		String coordStr = String.format("%.2f", position.latitude) + ",";
-	    coordStr += String.format("%.2f", position.longitude);
+		coordStr += String.format("%.2f", position.longitude);
 		return coordStr;
 	}
 }
