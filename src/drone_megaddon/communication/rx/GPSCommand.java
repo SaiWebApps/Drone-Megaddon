@@ -2,6 +2,7 @@ package drone_megaddon.communication.rx;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import drone_megaddon.ui_services.Drone;
 import drone_megaddon.ui_services.MapService;
 
 public class GPSCommand extends RxCommand
@@ -34,6 +35,8 @@ public class GPSCommand extends RxCommand
 		if (mapService == null) {
 			return;
 		}
-		mapService.addDrone(droneId, location);
+		
+		Drone target = mapService.addDrone(droneId, location);
+		target.updateDroneHealthBar(battery);
 	}
 }

@@ -105,8 +105,9 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 	 * Create a new drone, or update an existing drone's location.
 	 * @param droneId - Id of the drone being created/updated
 	 * @param location - New location on the map
+	 * @return the Drone that was either added to the map or relocated on the map
 	 */
-	public void addDrone(int droneId, LatLng location)
+	public Drone addDrone(int droneId, LatLng location)
 	{
 		Drone target = droneMap.get(droneId);
 		if (target == null) {
@@ -114,6 +115,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		}
 		target.addToMap(location);
 		droneMap.put(droneId, target);
+		return target;
 	}
 
 	public Drone getFirstDroneAtLocation(LatLng location)

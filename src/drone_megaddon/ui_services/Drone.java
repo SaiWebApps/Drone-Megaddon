@@ -15,9 +15,9 @@ public class Drone
 	private static final BitmapDescriptor SELECTED_DRONE_IMG = 
 			BitmapDescriptorFactory.fromResource(SELECTED_DRONE_IMG_ID);
 	private static final BitmapDescriptor DEFAULT_SC2DRONE_IMG = 
-			BitmapDescriptorFactory.fromResource(SELECTED_SC2DRONE_IMG_ID);
+			BitmapDescriptorFactory.fromResource(R.drawable.sc2drone);
 	private static final BitmapDescriptor SELECTED_SC2DRONE_IMG = 
-			BitmapDescriptorFactory.fromResource(R.drawable.selected_sc2dronecr);
+			BitmapDescriptorFactory.fromResource(SELECTED_SC2DRONE_IMG_ID);
 	private static final BitmapDescriptor HP100_IMG = 
 			BitmapDescriptorFactory.fromResource(R.drawable.hp100);
 	private static final BitmapDescriptor HP75_IMG = 
@@ -47,7 +47,8 @@ public class Drone
 		this.isSelected = false;
 		this.map = map;
 		this.droneId = droneId;
-		this.currentLocationMarkerOptions.icon(defaultDroneImage).title("Drone " + droneId).anchor(0.5f, 0.5f);		
+		this.currentLocationMarkerOptions.icon(defaultDroneImage).title(
+				"Drone " + droneId).anchor(0.5f, 0.5f);	
 		this.currentHpMarkerOptions.icon(HP100_IMG).title("100%");
 	}
 
@@ -82,6 +83,7 @@ public class Drone
 	public void toggleSelect()
 	{
 		isSelected = !isSelected;
+		// isSelected changed from false to true.
 		if (isSelected) {
 			currentLocationMarker.setIcon(selectedDroneImage);
 			currentHpMarker.setAlpha(1);
@@ -89,10 +91,13 @@ public class Drone
 				movementCommand.setSelected(true);
 				movementCommand.refreshDroneCoord(currentHpMarker);
 			} else {
-				updateCoordTitle(currentHpMarker, true);
+				updateCoordTitle(currentHpMarker);
 			}
 			currentHpMarker.showInfoWindow();
-		} else {
+		}
+		
+		// isSelected changed from true to false.
+		else {
 			currentLocationMarker.setIcon(defaultDroneImage);
 			currentHpMarker.setAlpha(0); // set hpbar opacity to 0 (invisible)
 
@@ -100,7 +105,7 @@ public class Drone
 				movementCommand.setSelected(false);
 				movementCommand.refreshDroneCoord(currentHpMarker);
 			} else {
-				updateCoordTitle(currentHpMarker, false);
+				updateCoordTitle(currentHpMarker);
 			}
 			currentHpMarker.showInfoWindow();
 		}
@@ -123,6 +128,33 @@ public class Drone
 		}
 	}
 
+	/**
+	 * Given the battery-life value received from the actual drone, update the
+	 * health bar above the drone icon accordingly.
+	 * @param droneHealth - Battery life value (b/w 0 and 100) received from the drone
+	 */
+	public void updateDroneHealthBar(long droneHealth)
+	{
+		BitmapDescriptor icon = HP25_IMG;
+		String title = "25%";
+		
+		if (droneHealth > 75 && droneHealth <= 100) {
+			icon = HP100_IMG;
+			title = "100%";
+		}
+		else if (droneHealth > 50 && droneHealth <= 75) {
+			icon = HP75_IMG;
+			title = "75%";
+		}
+		else if (droneHealth > 25 && droneHealth <= 50) {
+			icon = HP50_IMG;
+			title = "50%";
+		}
+		
+		currentHpMarker.setIcon(icon);
+		currentHpMarker.setTitle(title);
+	}
+	
 	/**
 	 * Move the drone to the specified destination the GoogleMap.
 	 * @param destinationMarker - User-specified destination for the drone
@@ -158,13 +190,13 @@ public class Drone
 		}
 	}
 	
-	public void updateCoordTitle(Marker hpMarker, boolean selected) {
-		if (selected) {
-			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]: " + 
-					getLatLngStr(hpMarker.getPosition()));
-		} else {
-			hpMarker.setTitle("[D" + Integer.toString(droneId) + "]");
+	public void updateCoordTitle(Marker hpMarker) {
+		String hpMarkerTitle = "[D" + droneId + "]";
+		if (isSelected) {
+			hpMarkerTitle = "[D" + droneId + "]: " + getLatLngStr(
+					hpMarker.getPosition());
 		}
+		hpMarker.setTitle(hpMarkerTitle);
 	}
 	
 	/**
