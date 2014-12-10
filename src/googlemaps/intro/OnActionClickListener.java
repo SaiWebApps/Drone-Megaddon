@@ -15,27 +15,25 @@ public class OnActionClickListener implements OnItemClickListener
 {
 	private MapActivity mapActivity; 
 	public int[] mActionsOff = new int[] {
-			R.drawable.sc2land_or,
-			R.drawable.sc2xor,
-			R.drawable.sc2firering,
-			R.drawable.sc2twistleftlit,
-			R.drawable.sc2twistrightlit,
 			R.drawable.sc2rain,
-			R.drawable.sc2missiles,
-			R.drawable.sc2crosshairs,
-			R.drawable.sc2atomicboom,
+			R.drawable.sc2xor,
+			R.drawable.sc2fire,
+			R.drawable.sc2arrowup,
+			R.drawable.sc2arrowdown,
+			R.drawable.sc2twistleftlit,
+			R.drawable.sc2target,
+			R.drawable.sc2diag,
 	};
 	
 	public int[] mActionsOn = new int[] {
-			R.drawable.sc2rain,
+			R.drawable.sc2land_or,
 			R.drawable.sc2xor_or,
-			R.drawable.sc2fire,
-			R.drawable.sc2twistleftlit,
-			R.drawable.sc2twistrightlit,
-			R.drawable.sc2bunker,
-			R.drawable.sc2bunker,
-			R.drawable.sc2cross,
-			R.drawable.sc2drone,
+			R.drawable.sc2firering,
+			R.drawable.sc2arrowup_or,
+			R.drawable.sc2arrowdown_or,
+			R.drawable.sc2twist_or,
+			R.drawable.sc2targetlit,
+			R.drawable.sc2diag_or,
 	};
 	
 	boolean[] toggleState = new boolean[mActionsOff.length];

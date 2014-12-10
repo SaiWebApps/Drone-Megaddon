@@ -15,31 +15,30 @@ public class OnActionLongClickListener implements OnItemLongClickListener {
 	public int[] mActions = new int[] {
 			R.drawable.sc2land_or,
 			R.drawable.sc2xor,
-			R.drawable.sc2firering,
+			R.drawable.sc2fire,
+			R.drawable.sc2arrowup,
+			R.drawable.sc2arrowdown,
 			R.drawable.sc2twistleftlit,
-			R.drawable.sc2twistrightlit,
-			R.drawable.sc2rain,
-			R.drawable.sc2missiles,
-			R.drawable.sc2crosshairs,
+			R.drawable.sc2target,
+			R.drawable.sc2diag,
 	};
-	
+
 	public String[] mActionsDesc = new String[] {
 			"Takeoff/Land\nTake off if the drone is grounded, or immediately land the drone.",
 			"Emergency Shutdown/Resume",
-			"Lockdown Hover/Hover",
-			"Spin Left",
-			"Spin Right",
-			"Up",
-			"Down",
-			"Group Select",
-			"Transform"
+			"Hover",
+			"Move Up",
+			"Move Down",
+			"Spin Lock\nIf on, rotate screen to spin drone left/right.",
+			"Drone Deselect\nDeselect all selected drones.",
+			"Transform\nChange icon to StarCraft II drone models."
 	};
-	
+
 	@Override
 	public boolean onItemLongClick(AdapterView<?> av, View v, int position,
 			long id) {
 		LayoutInflater inflater = LayoutInflater.from(av.getContext());
-		
+
 		RelativeLayout rl = (RelativeLayout) v;
 		View layout = inflater.inflate(R.layout.toast_hint,
 				(ViewGroup) rl.findViewById(R.id.toast_layout_root));

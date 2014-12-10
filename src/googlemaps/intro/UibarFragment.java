@@ -27,14 +27,14 @@ public class UibarFragment extends Fragment
 	{
 		List<Action> actionList = new ArrayList<Action>();
 
-		actionList.add(new Action(R.drawable.sc2land_or, "takeoff_land"));
-		actionList.add(new Action(R.drawable.sc2xor, "emergency_shutdown"));
-		actionList.add(new Action(R.drawable.sc2firering, "hover"));
-		actionList.add(new Action(R.drawable.sc2twistleftlit, "spinleft"));
-		actionList.add(new Action(R.drawable.sc2twistrightlit, "spinright"));
-		actionList.add(new Action(R.drawable.sc2rain, "flyup"));
-		actionList.add(new Action(R.drawable.sc2missiles, "flydown"));
-		actionList.add(new Action(R.drawable.sc2atomicboom, "changeicon"));
+		actionList.add(new Action(R.drawable.sc2rain, "takeoff_land"));
+		actionList.add(new Action(R.drawable.sc2xor, "emergency_noemergency"));
+		actionList.add(new Action(R.drawable.sc2fire, "hover"));
+		actionList.add(new Action(R.drawable.sc2arrowup, "move_up"));
+		actionList.add(new Action(R.drawable.sc2arrowdown, "move_down"));
+		actionList.add(new Action(R.drawable.sc2twistleftlit, "spin_lockon"));
+		actionList.add(new Action(R.drawable.sc2target, "drone_deselect"));
+		actionList.add(new Action(R.drawable.sc2diag, "change_icon"));
 
 		return actionList;
 	}

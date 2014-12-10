@@ -47,8 +47,7 @@ public class Drone
 		this.isSelected = false;
 		this.map = map;
 		this.droneId = droneId;
-		this.currentLocationMarkerOptions.icon(defaultDroneImage).title(
-				"Drone " + droneId).anchor(0.5f, 0.5f);		
+		this.currentLocationMarkerOptions.icon(defaultDroneImage).title("Drone " + droneId).anchor(0.5f, 0.5f);		
 		this.currentHpMarkerOptions.icon(HP100_IMG).title("100%");
 	}
 
@@ -139,8 +138,7 @@ public class Drone
 			handler.removeCallbacks(movementCommand, null);
 		}
 		// Issue a new movement command.
-		movementCommand = new MoveDrone(map, handler, currentLocationMarker, 
-				destinationMarker, currentHpMarker, getDroneId());
+		movementCommand = new MoveDrone(map, handler, currentLocationMarker, destinationMarker, currentHpMarker, getDroneId());
 		handler.post(movementCommand);
 	}
 
