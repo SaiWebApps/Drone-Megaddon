@@ -51,7 +51,8 @@ public class ActionAdapter extends BaseAdapter
 		convertView = inflater.inflate(R.layout.action_item, parent, false);
 		
 		Action action = actionList.get(position);
-		ImageView commandImage = (ImageView) convertView.findViewById(R.id.command_image);
+		ImageView commandImage = (ImageView) convertView.findViewById(
+				R.id.command_image);
 		commandImage.setImageResource(action.getImageId());
 		return convertView;
 	}

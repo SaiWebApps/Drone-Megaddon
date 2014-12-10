@@ -8,12 +8,14 @@ import com.google.android.gms.maps.model.*;
 
 public class Drone 
 {
+	private static final int SELECTED_DRONE_IMG_ID = R.drawable.selected_drone;
+	private static final int SELECTED_SC2DRONE_IMG_ID = R.drawable.sc2dronecr;
 	private static final BitmapDescriptor DEFAULT_DRONE_IMG = 
 			BitmapDescriptorFactory.fromResource(R.drawable.drone);
 	private static final BitmapDescriptor SELECTED_DRONE_IMG = 
-			BitmapDescriptorFactory.fromResource(R.drawable.selected_drone);
+			BitmapDescriptorFactory.fromResource(SELECTED_DRONE_IMG_ID);
 	private static final BitmapDescriptor DEFAULT_SC2DRONE_IMG = 
-			BitmapDescriptorFactory.fromResource(R.drawable.sc2dronecr);
+			BitmapDescriptorFactory.fromResource(SELECTED_SC2DRONE_IMG_ID);
 	private static final BitmapDescriptor SELECTED_SC2DRONE_IMG = 
 			BitmapDescriptorFactory.fromResource(R.drawable.selected_sc2dronecr);
 	private static final BitmapDescriptor HP100_IMG = 
@@ -24,6 +26,7 @@ public class Drone
 			BitmapDescriptorFactory.fromResource(R.drawable.hp50);
 	private static final BitmapDescriptor HP25_IMG = 
 			BitmapDescriptorFactory.fromResource(R.drawable.hp25);
+	
 	private static BitmapDescriptor defaultDroneImage = DEFAULT_DRONE_IMG;
 	private static BitmapDescriptor selectedDroneImage = SELECTED_DRONE_IMG;
 
@@ -44,7 +47,8 @@ public class Drone
 		this.isSelected = false;
 		this.map = map;
 		this.droneId = droneId;
-		this.currentLocationMarkerOptions.icon(defaultDroneImage).title("Drone " + droneId).anchor(0.5f, 0.5f);		
+		this.currentLocationMarkerOptions.icon(defaultDroneImage).title(
+				"Drone " + droneId).anchor(0.5f, 0.5f);		
 		this.currentHpMarkerOptions.icon(HP100_IMG).title("100%");
 	}
 
@@ -58,6 +62,19 @@ public class Drone
 		return currentLocationMarker;
 	}
 
+	public LatLng getCurrentLocation()
+	{
+		return currentLocationMarker.getPosition();
+	}
+	
+	public static int getImageId()
+	{
+		if (isSC2) {
+			return SELECTED_SC2DRONE_IMG_ID;
+		}
+		return SELECTED_DRONE_IMG_ID;
+	}
+	
 	public boolean isSelected()
 	{
 		return isSelected;
@@ -107,6 +124,10 @@ public class Drone
 		}
 	}
 
+	/**
+	 * Move the drone to the specified destination the GoogleMap.
+	 * @param destinationMarker - User-specified destination for the drone
+	 */
 	public void moveToDestMarker(Marker destinationMarker)
 	{
 		// Do nothing if we haven't created a source or destinationMarkerOptions marker yet.
@@ -118,7 +139,8 @@ public class Drone
 			handler.removeCallbacks(movementCommand, null);
 		}
 		// Issue a new movement command.
-		movementCommand = new MoveDrone(map, handler, currentLocationMarker, destinationMarker, currentHpMarker, getDroneId());
+		movementCommand = new MoveDrone(map, handler, currentLocationMarker, 
+				destinationMarker, currentHpMarker, getDroneId());
 		handler.post(movementCommand);
 	}
 
@@ -147,6 +169,11 @@ public class Drone
 		}
 	}
 	
+	/**
+	 * @param position - A (valid) location on the GoogleMap
+	 * @return (latitude, longitude), where both coordinates are rounded to
+	 * 2 decimal places
+	 */
 	private String getLatLngStr(LatLng position) {
 		// Round to 2 decimal points
 		String coordStr = String.format("%.2f", position.latitude) + ",";
