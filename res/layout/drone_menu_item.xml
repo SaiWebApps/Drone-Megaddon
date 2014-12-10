@@ -9,11 +9,16 @@
         android:id="@+id/item_drone_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Drone Image" />
+        android:contentDescription="@string/drone_menu_icon_description"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp" />
 
     <TextView
         android:id="@+id/item_drone_id"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="20sp" />
 
 </LinearLayout>
