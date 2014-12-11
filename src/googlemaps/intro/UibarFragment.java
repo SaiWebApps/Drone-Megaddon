@@ -19,8 +19,6 @@ public class UibarFragment extends Fragment
 	public void onAttach(Activity a)
 	{
 		super.onAttach(a);
-		// This makes sure that the container activity has implemented
-		// the callback interface. If not, it throws an exception
 	}
 
 	private List<Action> getActions()
