@@ -54,7 +54,7 @@ public class OnActionClickListener implements OnItemClickListener
 			iv.setImageResource(mActionsOn[position]);	
 		}
 		
-		if(action.getActionName().equals("changeicon")) {
+		if(action.getActionName().equals("change_icon")) {
 			onToggleIcon();
 		}
 	}
