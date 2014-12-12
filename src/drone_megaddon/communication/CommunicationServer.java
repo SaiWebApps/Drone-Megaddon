@@ -14,6 +14,7 @@ import drone_megaddon.communication.tx.TxCommand;
 import drone_megaddon.ui_services.MapService;
 
 import android.os.Handler;
+import android.util.Log;
 
 /**
  * Handle USB-Serial communications between the Android app
@@ -183,7 +184,8 @@ public class CommunicationServer
 
     		// If something has arrived, pop from queue, and write it to drone.
     		TxCommand command = pendingTransmissions.remove();
-    		serialManager.write(command.getMessageBytes());
+    		Log.e("Transmitting", command.getMessage());
+    		write(command.getMessage());
     		transmissionHandler.postDelayed(this, TRANSMIT_PERIOD);
     	}
     }

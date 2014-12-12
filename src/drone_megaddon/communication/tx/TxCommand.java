@@ -1,13 +1,10 @@
 package drone_megaddon.communication.tx;
 
-import java.util.Arrays;
-
 import drone_megaddon.communication.Command;
 
 public abstract class TxCommand extends Command
 {
 	private final String DELIMITER = ",";
-	private final byte TERMINATING_BYTE = -1; // Indicates end of message
 	
 	private StringBuffer messageBuffer = new StringBuffer();
 
@@ -33,21 +30,6 @@ public abstract class TxCommand extends Command
 	public String getMessage()
 	{
 		return messageBuffer.toString();
-	}
-	
-	/**
-	 * @return the bytes of the message to send to the drone;
-	 * the result byte array will be terminated with TERMINATING_BYTE (-1)
-	 */
-	public byte[] getMessageBytes()
-	{
-		byte[] messageBytes = getMessage().getBytes();
-		int numBytes = messageBytes.length;
-		
-		messageBytes = Arrays.copyOf(messageBytes, numBytes + 1);
-		messageBytes[numBytes] = TERMINATING_BYTE;
-		
-		return messageBytes;
 	}
 	
 	/**

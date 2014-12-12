@@ -2,7 +2,6 @@ package drone_megaddon.communication.tx;
 
 public class CTLCommand extends TxCommand
 {
-    private int droneId;
     private String controlCommand;
     private int emergencyState;
     

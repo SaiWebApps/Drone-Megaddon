@@ -2,7 +2,6 @@ package drone_megaddon.communication.tx;
 
 public class MVSCommand extends TxCommand
 {
-	private int droneId;
 	private String command;
 	private String direction;
 	private final double rate = 0.2; // -1.0 < yaw value < 1.0

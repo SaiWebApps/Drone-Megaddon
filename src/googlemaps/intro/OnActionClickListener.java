@@ -5,7 +5,6 @@ import java.util.List;
 import drone_megaddon.communication.CommunicationServer;
 import drone_megaddon.communication.tx.CTLCommand;
 import drone_megaddon.communication.tx.MVSCommand;
-import drone_megaddon.communication.tx.TxCommand;
 import drone_megaddon.ui_services.Drone;
 import drone_megaddon.ui_services.MapService;
 

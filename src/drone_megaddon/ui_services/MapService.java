@@ -8,6 +8,7 @@ import googlemaps.intro.MapActivity;
 import googlemaps.intro.R;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -200,7 +201,7 @@ public class MapService implements GoogleMap.OnMarkerClickListener, GoogleMap.On
 		List<Drone> selectedDrones = getSelectedDrones();
 		// If no drones were selected, then do nothing.
 		if (selectedDrones.isEmpty()) {
-			addDrone(42, clickedLocation); //DHT: Crazy test drone!!
+			addDrone((int)(Math.random() * 100), clickedLocation); //DHT: Crazy test drone!!
 			return;
 		}
 

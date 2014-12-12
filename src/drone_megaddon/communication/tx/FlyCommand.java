@@ -4,7 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class FlyCommand extends TxCommand
 {
-    private int droneId;
     private LatLng target;
     private double altitude;
     
